@@ -13,6 +13,9 @@ const OUT = dirname(fileURLToPath(import.meta.url));
 const SITE_URL = 'https://mktextileservice.com'; // no trailing slash
 const SITE = 'MK Textile Service';
 const EMAIL = 'info@mktextileservice.com';
+const PHONE = '+923212308070'; // calls and WhatsApp
+const PHONE_DISPLAY = '+92 321 2308070';
+const WA_URL = `https://wa.me/${PHONE.replace(/\D/g, '')}`;
 
 /* ---------- icons (24px line icons) ---------- */
 const ICONS = {
@@ -40,20 +43,23 @@ const ICONS = {
   book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
   clipboard: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
 };
 const icon = (name, cls = '') =>
   `<svg class="icon${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 const arrow = icon('arrow', 'icon--arrow');
 
-// Text emblem placeholder — replace with the final company logo when supplied.
-const emblem = `<svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#0E2A52"/><circle cx="24" cy="24" r="19.5" fill="none" stroke="#16B6C9" stroke-width="1.2"/><text x="24" y="29.5" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="800" letter-spacing=".5" fill="#fff">MK</text></svg>`;
+// Company logo mark (MK + swoosh). Light variant is for dark backgrounds.
+const emblem = `<img class="brand-mark" src="assets/img/logo-mark.png" width="439" height="192" alt="">`;
+const emblemFull = `<img class="brand-logo" src="assets/img/logo-header.png" width="339" height="176" alt="">`;
+const emblemLight = `<img class="brand-mark" src="assets/img/logo-mark-light.png" width="439" height="192" alt="" loading="lazy">`;
 
 /* ---------- shared data ---------- */
 // Estimated standard fees (USD per man-day). Estimates only, not fixed quotes.
 const SERVICES = [
   { key: 'garment', file: 'garment-inspection.html', icon: 'shirt', name: 'Garment Inspection', short: 'Apparel, denim, knitwear, sportswear, socks &amp; hosiery.', rate: 200 },
-  { key: 'fabric', file: 'fabric-material-inspection.html', icon: 'layers', name: 'Fabric &amp; Material Inspection', short: 'Fabric rolls, GSM, width, shade, trims and accessories.', rate: 200 },
-  { key: 'home-textile', file: 'home-textile-inspection.html', icon: 'bed', name: 'Home Textile Inspection', short: 'Towels, bedding, curtains, blankets and kitchen textiles.', rate: 200 },
+  { key: 'fabric', file: 'fabric-material-inspection.html', icon: 'layers', name: 'Fabric &amp; Material Inspection', short: 'Fabric rolls, GSM, width, shade and shrinkage.', rate: 200 },
+  { key: 'home-textile', file: 'home-textile-inspection.html', icon: 'bed', name: 'Home Textile Inspection', short: 'Towels, bedding, quilts and kitchen textiles.', rate: 200 },
   { key: 'packaging', file: 'packaging-shipment-inspection.html', icon: 'box', name: 'Packaging &amp; Shipment Inspection', short: 'Packing, labels, cartons, quantities and container condition.', rate: 200 },
 ];
 const CONTAINER = [
@@ -64,7 +70,7 @@ const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', ic
 const ALL = [...SERVICES, ...CONTAINER, FACTORY];
 
 const CITIES = ['Karachi', 'Lahore', 'Faisalabad', 'Sialkot', 'Multan', 'Islamabad', 'Rawalpindi'];
-const RATE_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For other cities, applicable travel and accommodation expenses will be charged additionally. Final quotation depends on inspection scope, location, duration and required manpower.';
+const RATE_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For cities apart from Karachi charges may vary. Final quotation depends on inspection scope, location, duration and required manpower.';
 
 const REPORTS = [
   ['inline-garment', 'In-Line Garment Inspection Report', 'Quality during ongoing production'],
@@ -126,7 +132,7 @@ function header(active, section) {
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" href="index.html" aria-label="${SITE} — home">
-      ${emblem}
+      ${emblemFull}${emblem}
       <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
     </a>
     <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">${icon('menu', 'icon--open')}${icon('close', 'icon--close')}</button>
@@ -144,7 +150,7 @@ const footer = `<footer class="site-footer">
   <div class="container footer-grid">
     <div>
       <a class="brand" href="index.html" aria-label="${SITE} — home">
-        ${emblem}
+        ${emblemLight}
         <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
       </a>
       <p class="footer-about">Independent third-party textile inspection and factory assessment services across Pakistan.</p>
@@ -164,8 +170,9 @@ const footer = `<footer class="site-footer">
     <div class="footer-contact">
       <h2>Contact</h2>
       <ul>
-        <li><a href="contact.html#enquiry">${icon('mail')}Email Us</a></li>
-        <li><a href="contact.html#enquiry" data-whatsapp>${icon('chat')}WhatsApp</a></li>
+        <li><a href="mailto:${EMAIL}">${icon('mail')}${EMAIL}</a></li>
+        <li><a href="tel:${PHONE}">${icon('phone')}${PHONE_DISPLAY}</a></li>
+        <li><a href="${WA_URL}" data-whatsapp>${icon('chat')}WhatsApp</a></li>
         <li><a href="sample-reports.html">${icon('report')}Request Sample Reports</a></li>
         <li><span class="footer-line">${icon('pin')}Nationwide coverage, Pakistan</span></li>
       </ul>
@@ -183,7 +190,7 @@ const widget = `<details class="cw">
     <h2>Contact Us</h2>
     <p>Send an enquiry or chat with us directly.</p>
     <a class="btn btn--primary" href="contact.html#enquiry">${icon('mail')}Email Us</a>
-    <a class="btn btn--wa" href="contact.html#enquiry" data-whatsapp>${icon('chat')}WhatsApp</a>
+    <a class="btn btn--wa" href="${WA_URL}" data-whatsapp>${icon('chat')}WhatsApp</a>
   </div>
 </details>`;
 
@@ -199,18 +206,19 @@ function page({ file, title, description, body, jsonld, section, noindex }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${description}">${noindex ? '\n<meta name="robots" content="noindex">' : canonical}
-<meta name="theme-color" content="#0E2A52">
+<meta name="theme-color" content="#500A13">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${SITE}">
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
-<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"></noscript>
 <link rel="stylesheet" href="assets/css/style.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>document.documentElement.classList.add('js');try{var s=new URLSearchParams(location.search).get('shade')||localStorage.getItem('mk-shade');if(/^[234]$/.test(s))document.documentElement.setAttribute('data-shade',s)}catch(e){}</script>
 <script src="assets/js/main.js" defer></script>${ld}
 </head>
 <body>
@@ -321,7 +329,7 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
         <div class="aside-card">
           <p class="rate-label">Estimated standard fee</p>
           <p class="rate">${price(svc)}</p>
-          <p>Karachi city rate. Other cities are quoted separately with travel and accommodation. <a href="inspection-services.html#rates">Rate details</a></p>
+          <p>Karachi city rate. For cities apart from Karachi charges may vary. <a href="inspection-services.html#rates">Rate details</a></p>
           <a class="btn btn--primary btn--block" href="${enquiry(svc.key)}">${requestLabel} ${arrow}</a>
           <a class="btn btn--outline btn--block" href="${enquiry('sample-report', sampleReports)}">${icon('report')}${sampleLabel}</a>
           <a class="btn btn--outline btn--block" href="contact.html">Contact Us</a>
@@ -398,10 +406,10 @@ const ARTICLES = [
   {
     file: 'guide-home-textile-inspection.html', cat: 'Home Textiles', related: SERVICES[2],
     title: 'Home Textile Quality Inspection',
-    desc: 'What is checked during home textile inspection for towels, bedding, curtains, blankets, quilts, upholstery and kitchen textiles.',
+    desc: 'What is checked during home textile inspection for towels, bedding, quilts, upholstery and kitchen textiles.',
     intro: 'Home textiles are judged on appearance, size, weight and how they are finished and packed. Each product type has its own checklist.',
     parts: [
-      ['Products covered', ['Towels and bathrobes', 'Bedsheets, pillowcases and duvet covers', 'Curtains and upholstery', 'Blankets and quilts', 'Kitchen textiles']],
+      ['Products covered', ['Towels and bathrobes', 'Bedsheets, pillowcases and duvet covers', 'Upholstery', 'Quilts', 'Kitchen textiles']],
       ['Main checks', ['Appearance', 'GSM and dimensions', 'Stitching', 'Shade', 'Print and embroidery', 'Shrinkage and absorbency where specified', 'Labels', 'Folding and packaging']],
     ],
     close: 'Use a product-specific checklist built from the buyer&rsquo;s specification.',
@@ -456,7 +464,7 @@ const ARTICLES = [
 ];
 
 /* ================= HOME ================= */
-const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Trims &amp; Accessories', 'Towels', 'Bedding', 'Curtains', 'Blankets', 'Quilts', 'Kitchen Textiles'];
+const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Towels', 'Bedding', 'Quilts', 'Kitchen Textiles'];
 const tickerList = (hidden) => `<ul${hidden ? ' aria-hidden="true"' : ''}>${tickerItems.map((t) => `<li>${t}</li>`).join('')}</ul>`;
 const articleCard = (a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
 const coverageBlock = `<ul class="cities">${CITIES.map((c) => `<li>${icon('pin')}${c}</li>`).join('')}<li class="more">+ other manufacturing locations</li></ul>`;
@@ -471,6 +479,9 @@ page({
     name: SITE,
     url: SITE_URL + '/',
     email: EMAIL,
+    telephone: PHONE,
+    logo: SITE_URL + '/assets/img/logo.png',
+    image: SITE_URL + '/assets/img/logo.png',
     description: 'Independent third-party textile inspection and factory assessment services in Pakistan.',
     areaServed: { '@type': 'Country', name: 'Pakistan' },
   },
@@ -492,7 +503,7 @@ page({
         <ul class="hero-points">
           <li>${icon('check')}30+ years of industry experience</li>
           <li>${icon('check')}Nationwide coverage in Pakistan</li>
-          <li>${icon('check')}Rates from US$200 / Man-Day</li>
+          <li>${icon('check')}Rates from US$200 / Man-Day, for Karachi</li>
         </ul>
       </div>
       <div class="hero-card">
@@ -607,7 +618,7 @@ page({
       </div>
       <div class="panel reveal" style="--d:100ms">
         <h3>Rates and locations</h3>
-        <p class="muted">Standard inspection rates apply to Karachi city. Assignments in other locations are quoted separately, with applicable travel and accommodation expenses included in the final quotation.</p>
+        <p class="muted">Standard inspection rates apply to Karachi city. For cities apart from Karachi charges may vary.</p>
         <a class="link-arrow" href="inspection-services.html#rates">View estimated rates ${arrow}</a>
       </div>
     </div>
@@ -634,18 +645,18 @@ const OVERVIEW = [
     svc: SERVICES[0],
     intro: 'Independent quality inspections of apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, and children&rsquo;s wear.',
     coverage: ['Apparel', 'Denim &amp; woven', 'Knitwear', 'Sportswear', 'Socks &amp; hosiery', 'Children&rsquo;s wear'],
-    activities: ['Workmanship and stitching', 'Measurements', 'Print, embroidery, trims and labels', 'Defect classification with photographic evidence'],
+    activities: ['Workmanship and stitching', 'Measurements', 'Print, embroidery and labels', 'Defect classification with photographic evidence'],
   },
   {
     svc: SERVICES[1],
-    intro: 'Inspection of fabric rolls, construction, GSM, width, shade, dimensional performance, trims and accessories.',
-    coverage: ['Woven fabric', 'Knitted fabric', 'Denim', 'Trims &amp; accessories'],
+    intro: 'Inspection of fabric rolls, construction, GSM, width, shade and dimensional performance.',
+    coverage: ['Woven fabric', 'Knitted fabric', 'Denim'],
     activities: ['Fabric roll inspection, Four-Point system where applicable', 'GSM, width and roll length', 'Shade and colour variation', 'Shrinkage and dimensional stability'],
   },
   {
     svc: SERVICES[2],
-    intro: 'Inspection of towels, bedding, curtains, blankets, quilts, kitchen textiles and related home textile products.',
-    coverage: ['Towels &amp; bathrobes', 'Bedding', 'Curtains', 'Blankets &amp; quilts', 'Kitchen textiles'],
+    intro: 'Inspection of towels, bedding, quilts, kitchen textiles and related home textile products.',
+    coverage: ['Towels &amp; bathrobes', 'Bedding', 'Quilts', 'Kitchen textiles'],
     activities: ['Fabric appearance and construction', 'GSM and dimensions', 'Stitching, shade, print and embroidery', 'Labels, folding and packaging'],
   },
   {
@@ -742,7 +753,7 @@ servicePage({
     block('Inspection stages', `<ul class="rows">
             ${STAGES.map(([code, name, text]) => `<li><strong><span class="code">${code}</span>${name}</strong><span>${text}</span></li>`).join('\n            ')}
           </ul>`, 'Inspection can be arranged at one stage or at several stages of the same order.'),
-    block('Checkpoints', list(['Product specifications and approved samples', 'Fabric and material condition', 'Workmanship and stitching', 'Measurements', 'Construction and assembly', 'Print and embroidery', 'Trims and accessories', 'Labels and branding', 'Colour and shade consistency', 'Functional and appearance checks', 'Defect classification', 'Packing and presentation where applicable', 'Photographic evidence'], 'checks checks--2')),
+    block('Checkpoints', list(['Product specifications and approved samples', 'Fabric and material condition', 'Workmanship and stitching', 'Measurements', 'Construction and assembly', 'Print and embroidery', 'Labels and branding', 'Colour and shade consistency', 'Functional and appearance checks', 'Defect classification', 'Packing and presentation where applicable', 'Photographic evidence'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Scope, sampling and acceptance criteria', 'The inspection scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.')}
         </section>`,
@@ -753,15 +764,15 @@ servicePage({
 servicePage({
   svc: SERVICES[1],
   title: 'Fabric &amp; Material Inspection in Pakistan | Four-Point System | MK Textile Service',
-  description: 'Fabric and material inspection in Pakistan: fabric rolls, Four-Point system, GSM, width, shade, shrinkage, spirality, trims and accessories.',
+  description: 'Fabric and material inspection in Pakistan: fabric rolls, Four-Point system, GSM, width, shade, shrinkage and spirality.',
   eyebrow: 'Inspection Services',
   intro: 'Inspection of fabric and garment materials to identify quality variations and potential problems before they affect bulk production.',
   requestLabel: 'Request Fabric Inspection',
   sampleLabel: 'Request Sample Fabric Inspection Report',
   sampleReports: 'fabric',
   sections: [
-    block('Material coverage', list(['Woven fabric', 'Knitted fabric', 'Denim', 'Other textile materials', 'Trims and accessories'], 'chips')),
-    block('What is inspected', list(['Fabric roll inspection', 'Four-Point system where applicable', 'Construction and appearance', 'GSM', 'Width', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Defect mapping', 'Roll and lot identification', 'Roll length', 'Incoming trims and accessories'], 'checks checks--2')),
+    block('Material coverage', list(['Woven fabric', 'Knitted fabric', 'Denim', 'Other textile materials'], 'chips')),
+    block('What is inspected', list(['Fabric roll inspection', 'Four-Point system where applicable', 'Construction and appearance', 'GSM', 'Width', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Defect mapping', 'Roll and lot identification', 'Roll length'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Method and acceptance criteria', 'The applicable inspection method and acceptance criteria depend on the buyer&rsquo;s requirements and are confirmed before the inspection.')}
         </section>`,
@@ -771,15 +782,15 @@ servicePage({
 /* ================= HOME TEXTILE ================= */
 servicePage({
   svc: SERVICES[2],
-  title: 'Home Textile Inspection in Pakistan | Towels, Bedding, Curtains | MK Textile Service',
-  description: 'Home textile inspection in Pakistan for towels, bathrobes, bedsheets, duvet covers, curtains, blankets, quilts and kitchen textiles.',
+  title: 'Home Textile Inspection in Pakistan | Towels, Bedding, Quilts | MK Textile Service',
+  description: 'Home textile inspection in Pakistan for towels, bathrobes, bedsheets, duvet covers, quilts and kitchen textiles.',
   eyebrow: 'Inspection Services',
   intro: 'Product quality inspection for home textile products, covering appearance, construction, dimensions, workmanship, functional details and packing requirements.',
   requestLabel: 'Request Home Textile Inspection',
   sampleLabel: 'Request Sample Home Textile Report',
   sampleReports: 'home-textile',
   sections: [
-    block('Product coverage', list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Curtains', 'Upholstery', 'Blankets', 'Quilts', 'Kitchen textiles', 'Related products'], 'chips')),
+    block('Product coverage', list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Upholstery', 'Quilts', 'Kitchen textiles', 'Related products'], 'chips')),
     block('Checkpoints', list(['Fabric appearance and construction', 'GSM and dimensions', 'Stitching and seams', 'Shade', 'Print and embroidery', 'Shrinkage and absorbency where specified', 'Labels', 'Folding and packaging'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Product-specific checklists', 'Each home textile product is inspected against a checklist built for that product and the buyer&rsquo;s specification.')}
@@ -977,7 +988,7 @@ page({
 const FAQS = [
   ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, home textiles such as towels and bedding, and finished-goods packing and shipments.'],
   ['At which production stages can an inspection be carried out?', 'From the Pre-Production Check (PPC) through Initial Production Check (IPC), During Production Check (DUPRO), Final Random Inspection (FRI) and Pre-Shipment Inspection (PSI). 100% inspection, re-inspection and in-line quality checks are also available.'],
-  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. Standard rates apply within Karachi city; for other cities, applicable travel and accommodation expenses are charged additionally. The final quotation depends on inspection scope, location, duration and required manpower.'],
+  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. Standard rates apply within Karachi city; for cities apart from Karachi charges may vary. The final quotation depends on inspection scope, location, duration and required manpower.'],
   ['Where in Pakistan do you work?', 'Coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country. Assignments are subject to availability and confirmation.'],
   ['How are the sampling plan and acceptance criteria decided?', 'The scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
   ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. A suitable sample is shared privately after the request has been reviewed.'],
@@ -1108,7 +1119,7 @@ page({
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('chat')}</span>
-          <div><h3>WhatsApp</h3><p data-pending="whatsapp">WhatsApp number to be added</p><a class="link-arrow" href="#enquiry" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
+          <div><h3>Phone &amp; WhatsApp</h3><p><a href="tel:${PHONE}">${PHONE_DISPLAY}</a></p><a class="link-arrow" href="${WA_URL}" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('pin')}</span>
@@ -1198,8 +1209,7 @@ page({
   </section>`,
 });
 
-/* ================= LEGAL (drafts — pending legal review, kept out of search) ================= */
-const draftNote = `<div class="note note--warn reveal">${icon('info')}<div><h3>Draft</h3><p>This page is a working draft. The final wording is pending legal review and may change.</p></div></div>`;
+/* ================= LEGAL ================= */
 const legalPage = (file, h1, lead, parts) => page({
   file,
   noindex: true,
@@ -1208,7 +1218,6 @@ const legalPage = (file, h1, lead, parts) => page({
   body: `${pageHero({ trail: [[h1]], eyebrow: 'Legal', h1, lead })}
   <section class="section">
     <div class="container legal prose">
-      ${draftNote}
       ${parts.map(([h, html]) => `<section class="reveal"><h2>${h}</h2>${html}</section>`).join('\n      ')}
     </div>
   </section>`,
@@ -1233,13 +1242,10 @@ legalPage('terms.html', 'Terms &amp; Conditions', 'Terms for using the MK Textil
   ['Contact', `<p>Questions about these terms can be sent to <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`],
 ]);
 
-/* ---------- favicon, robots, sitemap ---------- */
-writeFileSync(join(OUT, 'assets/img/favicon.svg'),
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#0E2A52"/><circle cx="24" cy="24" r="19.5" fill="none" stroke="#16B6C9" stroke-width="1.6"/><text x="24" y="30" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="800" fill="#fff">MK</text></svg>\n`);
-
+/* ---------- robots, sitemap ---------- */
 writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 
 const urls = built.map((f) => `  <url><loc>${SITE_URL}/${f === 'index.html' ? '' : f.replace(/\.html$/, '')}</loc></url>`).join('\n');
 writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 
-console.log(`Built ${built.length} indexed pages + 2 draft legal pages.`);
+console.log(`Built ${built.length} indexed pages + 2 legal pages.`);

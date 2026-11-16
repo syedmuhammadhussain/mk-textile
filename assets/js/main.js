@@ -10,9 +10,10 @@
                    sends the email notification (accepts a JSON POST)
      ------------------------------------------------------------------ */
   var CONFIG = {
-    whatsapp: '',
+    whatsapp: '923212308070',
     email: 'info@mktextileservice.com',
     formEndpoint: '',
+    shadePreview: true, // set to false to hide the colour-shade switcher once the client has chosen
     whatsappMessage: 'Hello MK Textile Service, I would like to enquire about your inspection services.'
   };
 
@@ -102,6 +103,36 @@
     var key = el.getAttribute('data-pending');
     if (CONFIG[key]) el.textContent = key === 'whatsapp' ? '+' + CONFIG.whatsapp.replace(/\D/g, '') : CONFIG[key];
   });
+
+  /* Shade preview switcher: four burgundy shades, remembered per browser.
+     A link with ?shade=1..4 opens the site in that shade. */
+  if (CONFIG.shadePreview) {
+    var SHADES = [['1', 'Dark', '#500A13'], ['2', 'Little light', '#641019'], ['3', 'Light', '#781622'], ['4', 'More light', '#8C1D2B']];
+    var fromUrl = new URLSearchParams(window.location.search).get('shade');
+    if (/^[1-4]$/.test(fromUrl || '')) { try { localStorage.setItem('mk-shade', fromUrl); } catch (e) {} }
+    var bar = doc.createElement('div');
+    bar.className = 'shade-switch';
+    bar.setAttribute('role', 'group');
+    bar.setAttribute('aria-label', 'Colour shade preview');
+    var shadeLabel = doc.createElement('span');
+    shadeLabel.textContent = 'Shade';
+    bar.appendChild(shadeLabel);
+    var setShade = function (id) {
+      if (id === '1') root.setAttribute('data-shade', '1'); else root.setAttribute('data-shade', id);
+      try { localStorage.setItem('mk-shade', id); } catch (e) {}
+      $$('button', bar).forEach(function (b) { b.setAttribute('aria-pressed', String(b.value === id)); });
+    };
+    SHADES.forEach(function (s) {
+      var b = doc.createElement('button');
+      b.type = 'button'; b.value = s[0]; b.textContent = s[0]; b.title = s[1];
+      b.setAttribute('aria-label', 'Shade ' + s[0] + ': ' + s[1]);
+      b.style.background = s[2];
+      b.addEventListener('click', function () { setShade(s[0]); });
+      bar.appendChild(b);
+    });
+    doc.body.appendChild(bar);
+    setShade(fromUrl && /^[1-4]$/.test(fromUrl) ? fromUrl : (root.getAttribute('data-shade') || '1'));
+  }
 
   /* Footer year */
   $$('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
