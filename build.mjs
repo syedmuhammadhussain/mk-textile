@@ -69,8 +69,7 @@ const CONTAINER = [
 const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.', rate: 275 };
 const ALL = [...SERVICES, ...CONTAINER, FACTORY];
 
-const CITIES = ['Karachi', 'Lahore', 'Faisalabad', 'Sialkot', 'Multan', 'Islamabad', 'Rawalpindi'];
-const RATE_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For cities apart from Karachi charges may vary. Final quotation depends on inspection scope, location, duration and required manpower.';
+const RATE_NOTE = 'Final quotation depends on inspection scope, duration and required manpower.';
 
 const REPORTS = [
   ['inline-garment', 'In-Line Garment Inspection Report', 'Quality during ongoing production'],
@@ -153,7 +152,7 @@ const footer = `<footer class="site-footer">
         ${emblemLight}
         <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
       </a>
-      <p class="footer-about">Independent third-party textile inspection and factory assessment services across Pakistan.</p>
+      <p class="footer-about">Independent third-party textile inspection and factory assessment services in Pakistan.</p>
     </div>
     <nav aria-label="Quick links">
       <h2>Quick Links</h2>
@@ -174,7 +173,7 @@ const footer = `<footer class="site-footer">
         <li><a href="tel:${PHONE}">${icon('phone')}${PHONE_DISPLAY}</a></li>
         <li><a href="${WA_URL}" data-whatsapp>${icon('chat')}WhatsApp</a></li>
         <li><a href="sample-reports.html">${icon('report')}Request Sample Reports</a></li>
-        <li><span class="footer-line">${icon('pin')}Nationwide coverage, Pakistan</span></li>
+        <li><span class="footer-line">${icon('pin')}Based in Karachi, Pakistan</span></li>
       </ul>
     </div>
   </div>
@@ -329,7 +328,7 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
         <div class="aside-card">
           <p class="rate-label">Estimated standard fee</p>
           <p class="rate">${price(svc)}</p>
-          <p>Karachi city rate. For cities apart from Karachi charges may vary. <a href="inspection-services.html#rates">Rate details</a></p>
+          <p>Estimated rate per man-day. <a href="inspection-services.html#rates">Rate details</a></p>
           <a class="btn btn--primary btn--block" href="${enquiry(svc.key)}">${requestLabel} ${arrow}</a>
           <a class="btn btn--outline btn--block" href="${enquiry('sample-report', sampleReports)}">${icon('report')}${sampleLabel}</a>
           <a class="btn btn--outline btn--block" href="contact.html">Contact Us</a>
@@ -467,12 +466,11 @@ const ARTICLES = [
 const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Towels', 'Bedding', 'Quilts', 'Kitchen Textiles'];
 const tickerList = (hidden) => `<ul${hidden ? ' aria-hidden="true"' : ''}>${tickerItems.map((t) => `<li>${t}</li>`).join('')}</ul>`;
 const articleCard = (a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
-const coverageBlock = `<ul class="cities">${CITIES.map((c) => `<li>${icon('pin')}${c}</li>`).join('')}<li class="more">+ other manufacturing locations</li></ul>`;
 
 page({
   file: 'index.html',
   title: 'Textile Inspection Services in Pakistan | MK Textile Service',
-  description: 'Independent third-party textile inspection and factory assessment services across Pakistan for international buyers, brands and businesses.',
+  description: 'Independent third-party textile inspection and factory assessment services in Pakistan for international buyers, brands and businesses.',
   jsonld: {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
@@ -480,6 +478,7 @@ page({
     url: SITE_URL + '/',
     email: EMAIL,
     telephone: PHONE,
+    address: { '@type': 'PostalAddress', addressLocality: 'Karachi', addressCountry: 'PK' },
     logo: SITE_URL + '/assets/img/logo.png',
     image: SITE_URL + '/assets/img/logo.png',
     description: 'Independent third-party textile inspection and factory assessment services in Pakistan.',
@@ -495,15 +494,15 @@ page({
       <div>
         <p class="eyebrow eyebrow--light">Independent third-party inspection</p>
         <h1>Textile Inspection Services <span>in Pakistan</span></h1>
-        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards across Pakistan.</p>
+        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards in Pakistan.</p>
         <div class="btn-row">
           <a class="btn btn--teal" href="inspection-services.html">Our Services ${arrow}</a>
           <a class="btn btn--ghost" href="contact.html">Contact Us</a>
         </div>
         <ul class="hero-points">
           <li>${icon('check')}30+ years of industry experience</li>
-          <li>${icon('check')}Nationwide coverage in Pakistan</li>
-          <li>${icon('check')}Rates from US$200 / Man-Day, for Karachi</li>
+          <li>${icon('check')}Based in Karachi, Pakistan</li>
+          <li>${icon('check')}Rates from US$200 / Man-Day</li>
         </ul>
       </div>
       <div class="hero-card">
@@ -605,22 +604,6 @@ page({
         <li class="reveal" style="--d:140ms"><h3>Inspection</h3><p>The inspection or assessment is carried out on site against the agreed criteria.</p></li>
         <li class="reveal" style="--d:210ms"><h3>Reporting</h3><p>Findings, defect classification and photographic evidence in one clear report.</p></li>
       </ol>
-    </div>
-  </section>
-
-  <section class="section section--alt">
-    <div class="container intro">
-      <div class="reveal">
-        <p class="eyebrow">Nationwide Service Coverage</p>
-        <h2>Across Pakistan&rsquo;s textile and manufacturing centres</h2>
-        <p class="lead">MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres.</p>
-        ${coverageBlock}
-      </div>
-      <div class="panel reveal" style="--d:100ms">
-        <h3>Rates and locations</h3>
-        <p class="muted">Standard inspection rates apply to Karachi city. For cities apart from Karachi charges may vary.</p>
-        <a class="link-arrow" href="inspection-services.html#rates">View estimated rates ${arrow}</a>
-      </div>
     </div>
   </section>
 
@@ -957,11 +940,6 @@ page({
           ${list(['Independent inspections', 'Honest findings', 'Clear communication', 'Dependable quality support'], 'checks checks--2')}
         </section>
         <section class="reveal">
-          <h2>Nationwide service coverage</h2>
-          <p>MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres. Our service coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country.</p>
-          ${coverageBlock}
-        </section>
-        <section class="reveal">
           <h2>Our services</h2>
           <div class="grid grid--2">
             ${ALL.map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
@@ -988,8 +966,8 @@ page({
 const FAQS = [
   ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, home textiles such as towels and bedding, and finished-goods packing and shipments.'],
   ['At which production stages can an inspection be carried out?', 'From the Pre-Production Check (PPC) through Initial Production Check (IPC), During Production Check (DUPRO), Final Random Inspection (FRI) and Pre-Shipment Inspection (PSI). 100% inspection, re-inspection and in-line quality checks are also available.'],
-  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. Standard rates apply within Karachi city; for cities apart from Karachi charges may vary. The final quotation depends on inspection scope, location, duration and required manpower.'],
-  ['Where in Pakistan do you work?', 'Coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country. Assignments are subject to availability and confirmation.'],
+  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. The final quotation depends on inspection scope, duration and required manpower.'],
+  ['Where are you based?', 'MK Textile Service is based in Karachi, Pakistan.'],
   ['How are the sampling plan and acceptance criteria decided?', 'The scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
   ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. A suitable sample is shared privately after the request has been reviewed.'],
   ['Is a factory assessment a certification?', 'No. It is an independent evaluation against a scope agreed with the client. No formal certificate is issued.'],
@@ -1123,7 +1101,7 @@ page({
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('pin')}</span>
-          <div><h3>Service coverage</h3><p>Nationwide, Pakistan: ${CITIES.join(', ')} and other manufacturing locations.</p></div>
+          <div><h3>Location</h3><p>Based in Karachi, Pakistan</p></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('globe')}</span>
