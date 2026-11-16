@@ -27,10 +27,12 @@
   --ease: cubic-bezier(.22, .8, .28, 1);
 }
 
-/* Burgundy shade variants for client review. Default (no attribute) = dark. */
-:root[data-shade="2"] { --navy-900: #3A060D; --navy-800: #4A0811; --navy: #641019; --navy-700: #7A1A26; --navy-600: #8E2433; }
-:root[data-shade="3"] { --navy-900: #4A0A13; --navy-800: #5C0E18; --navy: #781622; --navy-700: #8E2230; --navy-600: #A22E3E; }
-:root[data-shade="4"] { --navy-900: #5A0F1A; --navy-800: #6E1420; --navy: #8C1D2B; --navy-700: #A22A3A; --navy-600: #B63A4A; }
+/* Theme variants for client review. 1 (or no attribute) = dark burgundy.
+   2-4 are light themes: logo burgundy + gold stay as accents on a pale surface.
+   Their component overrides are at the end of this file. */
+:root[data-shade="2"] { --bg-alt: #FAF6EF; --line: #EDE4D8; --surface-a: #FEFBF5; --surface-b: #F6EDDD; --surface-foot: #F8F2E8; }
+:root[data-shade="3"] { --bg-alt: #F4F5F7; --line: #E2E5EA; --surface-a: #F9FAFB; --surface-b: #E8EBF0; --surface-foot: #F0F2F5; --ink: #23252B; --muted: #5F6672; }
+:root[data-shade="4"] { --bg-alt: #F2F6FB; --line: #DCE6F1; --surface-a: #F6FAFE; --surface-b: #DFEBF7; --surface-foot: #EAF1F9; --ink: #1F2733; --muted: #586780; }
 
 /* Shade preview switcher (temporary, for choosing the final colour) */
 .shade-switch { position: fixed; left: 20px; bottom: 20px; z-index: 90; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 100px; background: #fff; box-shadow: var(--shadow-lg); font-size: .78rem; font-weight: 600; color: var(--ink); }
@@ -538,3 +540,53 @@ a.card > .card-rate { margin-top: 12px; }
 @media print {
   .site-header, .cw, .ticker, .site-footer { display: none; }
 }
+
+/* ---------- Light themes (data-shade 2, 3, 4): pale surfaces instead of dark blocks ---------- */
+:root[data-shade]:not([data-shade="1"]) { --gold-text: #9A7212; }
+:root[data-shade]:not([data-shade="1"]) .hero { color: var(--ink); background: linear-gradient(135deg, var(--surface-a) 0%, var(--surface-b) 100%); border-bottom: 1px solid var(--line); }
+:root[data-shade]:not([data-shade="1"]) .hero::before { filter: invert(1); opacity: .7; }
+:root[data-shade]:not([data-shade="1"]) .hero::after { background: radial-gradient(closest-side, rgba(197, 155, 39, .2), transparent); }
+:root[data-shade]:not([data-shade="1"]) .hero-threads { opacity: .5; }
+:root[data-shade]:not([data-shade="1"]) .hero h1 { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .hero h1 span { color: var(--gold-text); }
+:root[data-shade]:not([data-shade="1"]) .eyebrow--light { color: var(--teal-600); }
+:root[data-shade]:not([data-shade="1"]) .hero .lead { color: var(--muted); }
+:root[data-shade]:not([data-shade="1"]) .hero-points { border-top-color: var(--line); color: var(--ink); }
+:root[data-shade]:not([data-shade="1"]) .hero-points .icon,
+:root[data-shade]:not([data-shade="1"]) .stage-list .icon,
+:root[data-shade]:not([data-shade="1"]) .hero-card-head .icon { color: var(--teal-600); }
+:root[data-shade]:not([data-shade="1"]) .hero-card { border-color: var(--line); background: rgba(255, 255, 255, .86); box-shadow: 0 24px 60px rgba(80, 10, 19, .09); }
+:root[data-shade]:not([data-shade="1"]) .hero-card-head h2 { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .hero-card-head p,
+:root[data-shade]:not([data-shade="1"]) .hero-card-foot { color: var(--muted); border-top-color: var(--line); }
+:root[data-shade]:not([data-shade="1"]) .stage-list li { border-top-color: var(--line); color: var(--ink); }
+:root[data-shade]:not([data-shade="1"]) .stage-list .code { background: var(--bg-alt); color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) :is(.hero, .cta-band) .btn--teal { background: var(--navy); color: #fff; }
+:root[data-shade]:not([data-shade="1"]) :is(.hero, .cta-band) .btn--teal:hover { background: var(--navy-700); color: #fff; box-shadow: var(--shadow); }
+:root[data-shade]:not([data-shade="1"]) .btn--ghost { border-color: rgba(80, 10, 19, .28); color: var(--navy); background: rgba(255, 255, 255, .6); }
+:root[data-shade]:not([data-shade="1"]) .btn--ghost:hover { border-color: var(--navy); background: #fff; color: var(--navy); }
+
+:root[data-shade]:not([data-shade="1"]) .cta-band { color: var(--ink); background: linear-gradient(135deg, var(--surface-a), var(--surface-b)); border: 1px solid var(--line); }
+:root[data-shade]:not([data-shade="1"]) .cta-band::after { background: radial-gradient(closest-side, rgba(197, 155, 39, .22), transparent); }
+:root[data-shade]:not([data-shade="1"]) .cta-band h2 { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .cta-band p { color: var(--muted); }
+
+:root[data-shade]:not([data-shade="1"]) .stat-card { color: var(--ink); background: linear-gradient(135deg, #fff, var(--surface-b)); border: 1px solid var(--line); box-shadow: var(--shadow); }
+:root[data-shade]:not([data-shade="1"]) .stat-card .stat { color: var(--gold-text); }
+:root[data-shade]:not([data-shade="1"]) .stat-card .stat-label { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .stat-card .stat-label + p { border-top-color: var(--line); color: var(--muted); }
+
+:root[data-shade]:not([data-shade="1"]) .site-footer { background: var(--surface-foot); color: var(--muted); border-top: 1px solid var(--line); }
+:root[data-shade]:not([data-shade="1"]) .site-footer .brand,
+:root[data-shade]:not([data-shade="1"]) .site-footer h2 { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .site-footer .brand-text small { color: var(--muted); }
+:root[data-shade]:not([data-shade="1"]) .site-footer a { color: var(--ink); }
+:root[data-shade]:not([data-shade="1"]) .site-footer a:hover { color: var(--teal-600); }
+:root[data-shade]:not([data-shade="1"]) .footer-contact .icon { color: var(--teal-600); }
+:root[data-shade]:not([data-shade="1"]) .footer-bottom { border-top-color: var(--line); color: var(--muted); }
+:root[data-shade]:not([data-shade="1"]) .footer-bottom a { color: var(--muted); }
+
+/* Footer logo: white mark on the dark theme, burgundy mark on light themes */
+.site-footer .brand-mark--on-light { display: none; }
+:root[data-shade]:not([data-shade="1"]) .site-footer .brand-mark--on-light { display: block; }
+:root[data-shade]:not([data-shade="1"]) .site-footer .brand-mark--on-dark { display: none; }

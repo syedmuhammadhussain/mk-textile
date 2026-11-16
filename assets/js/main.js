@@ -104,10 +104,10 @@
     if (CONFIG[key]) el.textContent = key === 'whatsapp' ? '+' + CONFIG.whatsapp.replace(/\D/g, '') : CONFIG[key];
   });
 
-  /* Shade preview switcher: four burgundy shades, remembered per browser.
+  /* Theme preview switcher: dark burgundy plus three light themes, remembered per browser.
      A link with ?shade=1..4 opens the site in that shade. */
   if (CONFIG.shadePreview) {
-    var SHADES = [['1', 'Dark', '#500A13'], ['2', 'Little light', '#641019'], ['3', 'Light', '#781622'], ['4', 'More light', '#8C1D2B']];
+    var SHADES = [['1', 'Dark burgundy', '#500A13'], ['2', 'Light ivory', '#F6EDDD'], ['3', 'Light grey', '#E8EBF0'], ['4', 'Light blue', '#DFEBF7']];
     var fromUrl = new URLSearchParams(window.location.search).get('shade');
     if (/^[1-4]$/.test(fromUrl || '')) { try { localStorage.setItem('mk-shade', fromUrl); } catch (e) {} }
     var bar = doc.createElement('div');
@@ -127,6 +127,7 @@
       b.type = 'button'; b.value = s[0]; b.textContent = s[0]; b.title = s[1];
       b.setAttribute('aria-label', 'Shade ' + s[0] + ': ' + s[1]);
       b.style.background = s[2];
+      if (s[0] !== '1') b.style.color = '#500A13';
       b.addEventListener('click', function () { setShade(s[0]); });
       bar.appendChild(b);
     });

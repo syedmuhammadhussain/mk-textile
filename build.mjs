@@ -52,7 +52,7 @@ const arrow = icon('arrow', 'icon--arrow');
 // Company logo mark (MK + swoosh). Light variant is for dark backgrounds.
 const emblem = `<img class="brand-mark" src="assets/img/logo-mark.png" width="439" height="192" alt="">`;
 const emblemFull = `<img class="brand-logo" src="assets/img/logo-header.png" width="339" height="176" alt="">`;
-const emblemLight = `<img class="brand-mark" src="assets/img/logo-mark-light.png" width="439" height="192" alt="" loading="lazy">`;
+const emblemLight = `<img class="brand-mark brand-mark--on-dark" src="assets/img/logo-mark-light.png" width="439" height="192" alt="" loading="lazy"><img class="brand-mark brand-mark--on-light" src="assets/img/logo-mark.png" width="439" height="192" alt="" loading="lazy">`;
 
 /* ---------- shared data ---------- */
 // Estimated standard fees (USD per man-day). Estimates only, not fixed quotes.
