@@ -11,7 +11,7 @@
      ------------------------------------------------------------------ */
   var CONFIG = {
     whatsapp: '',
-    email: '',
+    email: 'info@mktextileservice.com',
     formEndpoint: '',
     whatsappMessage: 'Hello MK Textile Service, I would like to enquire about your inspection services.'
   };
@@ -183,7 +183,9 @@
         email: form.elements['email'].value.trim(),
         country: form.elements['country'].value.trim(),
         enquiryType: type.options[type.selectedIndex].text,
-        productCategory: form.elements['productCategory'].value,
+        inspectionStage: form.elements['inspectionStage'].value,
+        location: form.elements['location'].value.trim(),
+        quantity: form.elements['quantity'].value.trim(),
         preferredDate: form.elements['preferredDate'].value,
         reports: type.value === 'sample-report'
           ? $$('input[name="reports"]:checked', form).map(function (b) { return b.parentNode.textContent.trim(); })
@@ -217,7 +219,9 @@
           'Email: ' + data.email,
           'Country: ' + data.country,
           'Enquiry type: ' + data.enquiryType,
-          'Product category: ' + (data.productCategory || '-'),
+          'Inspection stage: ' + (data.inspectionStage || '-'),
+          'Factory / inspection location: ' + (data.location || '-'),
+          'Product quantity: ' + (data.quantity || '-'),
           'Preferred inspection date: ' + (data.preferredDate || '-')
         ];
         if (data.reports.length) lines.push('Report type(s): ' + data.reports.join('; '));

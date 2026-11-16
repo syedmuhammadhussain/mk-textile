@@ -1,8 +1,8 @@
 // MK Textile Service — static site generator.
 // Run:  node build.mjs
-// Writes the plain .html pages next to this file. Header, footer, navigation
-// and the contact widget live here once, so edit them here and rebuild rather
-// than editing the generated pages by hand.
+// Writes the plain .html pages next to this file. Header, footer, navigation,
+// rates and the contact widget live here once, so edit them here and rebuild
+// rather than editing the generated pages by hand.
 
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -10,10 +10,9 @@ import { fileURLToPath } from 'node:url';
 
 const OUT = dirname(fileURLToPath(import.meta.url));
 
-// Set once the domain is confirmed (no trailing slash), e.g. "https://www.example.com".
-// When set, canonical URLs, sitemap.xml and the sitemap line in robots.txt are generated.
-const SITE_URL = '';
+const SITE_URL = 'https://mktextileservice.com'; // no trailing slash
 const SITE = 'MK Textile Service';
+const EMAIL = 'info@mktextileservice.com';
 
 /* ---------- icons (24px line icons) ---------- */
 const ICONS = {
@@ -28,12 +27,13 @@ const ICONS = {
   layers: '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>',
   bed: '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
   box: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  truck: '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  unload: '<rect x="3" y="3" width="18" height="12" rx="2"/><path d="M9 3v12M15 3v12"/><path d="M12 17v5"/><path d="m9 19.5 3 2.5 3-2.5"/>',
   factory: '<path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/>',
   report: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
   users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
   scale: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
-  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   pin: '<path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
   globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
@@ -45,17 +45,26 @@ const icon = (name, cls = '') =>
   `<svg class="icon${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 const arrow = icon('arrow', 'icon--arrow');
 
-// Text emblem placeholder — replace with the approved circular MK emblem when supplied.
+// Text emblem placeholder — replace with the final company logo when supplied.
 const emblem = `<svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#0E2A52"/><circle cx="24" cy="24" r="19.5" fill="none" stroke="#16B6C9" stroke-width="1.2"/><text x="24" y="29.5" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="800" letter-spacing=".5" fill="#fff">MK</text></svg>`;
 
 /* ---------- shared data ---------- */
+// Estimated standard fees (USD per man-day). Estimates only, not fixed quotes.
 const SERVICES = [
-  { key: 'garment', file: 'garment-inspection.html', icon: 'shirt', name: 'Garment Inspection', short: 'Apparel, denim, knitwear, sportswear, socks &amp; hosiery.' },
-  { key: 'fabric', file: 'fabric-material-inspection.html', icon: 'layers', name: 'Fabric &amp; Material Inspection', short: 'Fabric rolls, GSM, shade, construction and trims.' },
-  { key: 'home-textile', file: 'home-textile-inspection.html', icon: 'bed', name: 'Home Textile Inspection', short: 'Towels, bedding, curtains, blankets and kitchen textiles.' },
-  { key: 'packaging', file: 'packaging-shipment-inspection.html', icon: 'box', name: 'Packaging &amp; Shipment Inspection', short: 'Packing, labels, cartons, quantities and container loading.' },
+  { key: 'garment', file: 'garment-inspection.html', icon: 'shirt', name: 'Garment Inspection', short: 'Apparel, denim, knitwear, sportswear, socks &amp; hosiery.', rate: 200 },
+  { key: 'fabric', file: 'fabric-material-inspection.html', icon: 'layers', name: 'Fabric &amp; Material Inspection', short: 'Fabric rolls, GSM, width, shade, trims and accessories.', rate: 200 },
+  { key: 'home-textile', file: 'home-textile-inspection.html', icon: 'bed', name: 'Home Textile Inspection', short: 'Towels, bedding, curtains, blankets and kitchen textiles.', rate: 200 },
+  { key: 'packaging', file: 'packaging-shipment-inspection.html', icon: 'box', name: 'Packaging &amp; Shipment Inspection', short: 'Packing, labels, cartons, quantities and container condition.', rate: 200 },
 ];
-const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.' };
+const CONTAINER = [
+  { key: 'container-loading', file: 'container-loading-supervision.html', icon: 'truck', name: 'Container Loading Supervision', short: 'Container condition, loading sequence, stacking and seal record.', rate: 200 },
+  { key: 'container-unloading', file: 'container-unloading-inspection.html', icon: 'unload', name: 'Container Unloading Inspection', short: 'Seal, internal condition, carton damage and discrepancies.', rate: 200 },
+];
+const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.', rate: 275 };
+const ALL = [...SERVICES, ...CONTAINER, FACTORY];
+
+const CITIES = ['Karachi', 'Lahore', 'Faisalabad', 'Sialkot', 'Multan', 'Islamabad', 'Rawalpindi'];
+const RATE_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For other cities, applicable travel and accommodation expenses will be charged additionally. Final quotation depends on inspection scope, location, duration and required manpower.';
 
 const REPORTS = [
   ['inline-garment', 'In-Line Garment Inspection Report', 'Quality during ongoing production'],
@@ -63,12 +72,26 @@ const REPORTS = [
   ['dupro', 'DUPRO Inspection Report', 'During-production check of bulk quality'],
   ['fabric', 'Fabric Inspection Report', 'Roll-wise findings and defect records'],
   ['home-textile', 'Home Textile Inspection Report', 'Product-wise findings and measurements'],
-  ['packaging-shipment', 'Packaging &amp; Shipment Inspection Report', 'Packing, cartons, quantity and loading'],
+  ['packaging-shipment', 'Packaging &amp; Shipment Inspection Report', 'Packing, cartons, labels and quantity'],
+  ['container-loading', 'Container Loading Supervision Report', 'Container condition, loading and seal record'],
+  ['container-unloading', 'Container Unloading Inspection Report', 'Seal, condition on opening and damage'],
   ['factory-assessment', 'Factory Assessment / Quality Audit Report', 'Capability, quality systems and CAPA'],
+];
+
+const STAGES = [
+  ['PPC', 'Pre-Production Check', 'Review materials, specifications, samples, production readiness and quality requirements before bulk production.'],
+  ['IPC', 'Initial Production Check', 'Check initial production output, workmanship, measurements and process setup.'],
+  ['DUPRO', 'During Production Check', 'Monitor bulk production quality, defects, measurements and corrective actions.'],
+  ['FRI', 'Final Random Inspection', 'Evaluate a selected sample of completed goods against agreed inspection criteria.'],
+  ['PSI', 'Pre-Shipment Inspection', 'Verify shipment readiness, product quality, packing and shipping requirements.'],
+  ['100%', '100% Inspection', 'Inspect every unit within the agreed inspection scope.'],
+  ['RE', 'Re-Inspection', 'Verify corrections after an earlier inspection or rejection.'],
+  ['IN-LINE', 'In-Line Quality Check', 'Monitor workmanship and quality during ongoing production.'],
 ];
 
 const enquiry = (service, reports) =>
   `contact.html?service=${service}${reports ? '&amp;reports=' + reports : ''}#enquiry`;
+const strip = (s) => s.replace(/&amp;/g, '&').replace(/&rsquo;/g, '’').replace(/&middot;/g, '·');
 
 /* ---------- layout ---------- */
 const NAV = [
@@ -78,20 +101,23 @@ const NAV = [
   ['sample-reports.html', 'Sample Reports'],
   ['about.html', 'About Us'],
   ['knowledge-centre.html', 'Knowledge Centre'],
-  ['contact.html', 'Contact'],
+  ['contact.html', 'Contact Us'],
 ];
 
-function header(active) {
+function header(active, section) {
+  const subLink = (s) => `<li><a href="${s.file}"${s.file === active ? ' aria-current="page"' : ''}>${icon(s.icon)}<span><strong>${s.name}</strong><small>${s.short}</small></span></a></li>`;
   const items = NAV.map(([href, label]) => {
     const current = href === active ? ' aria-current="page"' : '';
-    if (href !== 'inspection-services.html') return `<li><a href="${href}"${current}>${label}</a></li>`;
-    const inSection = SERVICES.some((s) => s.file === active);
-    return `<li class="has-sub${inSection ? ' is-active' : ''}">
+    const inSection = href === section ? ' class="is-active"' : '';
+    if (href !== 'inspection-services.html') return `<li${inSection}><a href="${href}"${current}>${label}</a></li>`;
+    return `<li class="has-sub${href === section ? ' is-active' : ''}">
           <a href="${href}"${current}>${label}</a>
           <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Show inspection services">${icon('chevron')}</button>
           <ul class="sub">
-            ${SERVICES.map((s) => `<li><a href="${s.file}"${s.file === active ? ' aria-current="page"' : ''}>${icon(s.icon)}<span><strong>${s.name}</strong><small>${s.short}</small></span></a></li>`).join('\n            ')}
-            <li><a class="sub-all" href="inspection-services.html">All inspection services ${arrow}</a></li>
+            ${SERVICES.map(subLink).join('\n            ')}
+            <li class="sub-label">Container services</li>
+            ${CONTAINER.map(subLink).join('\n            ')}
+            <li><a class="sub-all" href="inspection-services.html">All services and estimated rates ${arrow}</a></li>
           </ul>
         </li>`;
   }).join('\n        ');
@@ -121,7 +147,7 @@ const footer = `<footer class="site-footer">
         ${emblem}
         <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
       </a>
-      <p class="footer-about">Independent textile inspection and factory assessment services in Pakistan.</p>
+      <p class="footer-about">Independent third-party textile inspection and factory assessment services across Pakistan.</p>
     </div>
     <nav aria-label="Quick links">
       <h2>Quick Links</h2>
@@ -132,7 +158,7 @@ const footer = `<footer class="site-footer">
     <nav aria-label="Services">
       <h2>Our Services</h2>
       <ul>
-        ${[...SERVICES, FACTORY].map((s) => `<li><a href="${s.file}">${s.name}</a></li>`).join('\n        ')}
+        ${ALL.map((s) => `<li><a href="${s.file}">${s.name}</a></li>`).join('\n        ')}
       </ul>
     </nav>
     <div class="footer-contact">
@@ -141,12 +167,13 @@ const footer = `<footer class="site-footer">
         <li><a href="contact.html#enquiry">${icon('mail')}Email Us</a></li>
         <li><a href="contact.html#enquiry" data-whatsapp>${icon('chat')}WhatsApp</a></li>
         <li><a href="sample-reports.html">${icon('report')}Request Sample Reports</a></li>
+        <li><span class="footer-line">${icon('pin')}Nationwide coverage, Pakistan</span></li>
       </ul>
     </div>
   </div>
   <div class="container footer-bottom">
     <span>&copy; <span data-year>2026</span> ${SITE}. All rights reserved.</span>
-    <span>Inspection Services in Pakistan &middot; Factory Assessment &amp; Quality Audit</span>
+    <span class="footer-legal"><a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Conditions</a></span>
   </div>
 </footer>`;
 
@@ -160,8 +187,10 @@ const widget = `<details class="cw">
   </div>
 </details>`;
 
-function page({ file, title, description, body, jsonld }) {
-  const canonical = SITE_URL ? `\n<link rel="canonical" href="${SITE_URL}/${file === 'index.html' ? '' : file}">` : '';
+const built = [];
+
+function page({ file, title, description, body, jsonld, section, noindex }) {
+  const canonical = SITE_URL ? `\n<link rel="canonical" href="${SITE_URL}/${file === 'index.html' ? '' : file.replace(/\.html$/, '')}">` : '';
   const ld = jsonld ? `\n<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : '';
   const html = `<!doctype html>
 <html lang="en">
@@ -169,7 +198,7 @@ function page({ file, title, description, body, jsonld }) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
-<meta name="description" content="${description}">${canonical}
+<meta name="description" content="${description}">${noindex ? '\n<meta name="robots" content="noindex">' : canonical}
 <meta name="theme-color" content="#0E2A52">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${SITE}">
@@ -185,7 +214,7 @@ function page({ file, title, description, body, jsonld }) {
 <script src="assets/js/main.js" defer></script>${ld}
 </head>
 <body>
-${header(file)}
+${header(file, section || file)}
 <main id="main">
 ${body}
 </main>
@@ -195,7 +224,7 @@ ${widget}
 </html>
 `;
   writeFileSync(join(OUT, file), html);
-  return file;
+  if (!noindex) built.push(file);
 }
 
 /* ---------- reusable blocks ---------- */
@@ -220,6 +249,17 @@ const pageHero = ({ trail, eyebrow, h1, lead, iconName, buttons = '' }) => `<sec
   </section>`;
 
 const list = (items, cls) => `<ul class="${cls}">${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
+const block = (h2, inner, lead = '') => `<section class="reveal">
+          <h2>${h2}</h2>${lead ? `\n          <p>${lead}</p>` : ''}
+          ${inner}
+        </section>`;
+const note = (h3, text, ic = 'info') => `<div class="note">
+            ${icon(ic)}
+            <div>
+              <h3>${h3}</h3>
+              <p>${text}</p>
+            </div>
+          </div>`;
 
 const ctaBand = (h2, p, buttons) => `<section class="section section--tight">
     <div class="container">
@@ -235,9 +275,11 @@ const ctaBand = (h2, p, buttons) => `<section class="section section--tight">
 
 const defaultCta = ctaBand(
   'Discuss your inspection requirements',
-  'Tell us the product, the service you need and your preferred inspection date. We will reply to your enquiry by email.',
+  'Tell us the product, the service you need and the factory location. We will review your requirements and contact you about the next steps.',
   `<a class="btn btn--teal" href="contact.html#enquiry">Get in Touch ${arrow}</a><a class="btn btn--ghost" href="sample-reports.html">Request Sample Reports</a>`
 );
+
+const price = (s) => `US$${s.rate} <small>/ Man-Day</small>`;
 
 const serviceLd = (name, description) => ({
   '@context': 'https://schema.org',
@@ -245,25 +287,24 @@ const serviceLd = (name, description) => ({
   name,
   serviceType: name,
   description,
-  provider: { '@type': 'Organization', name: SITE },
+  provider: { '@type': 'Organization', name: SITE, url: SITE_URL + '/' },
   areaServed: { '@type': 'Country', name: 'Pakistan' },
 });
 
 const otherServices = (currentKey) => `<div class="aside-links">
           <h2>Other services</h2>
           <ul>
-            ${[...SERVICES, FACTORY].filter((s) => s.key !== currentKey).map((s) => `<li><a href="${s.file}">${s.name}${icon('arrow')}</a></li>`).join('\n            ')}
+            ${ALL.filter((s) => s.key !== currentKey).map((s) => `<li><a href="${s.file}">${s.name}${icon('arrow')}</a></li>`).join('\n            ')}
           </ul>
         </div>`;
 
-/* Service detail page: sections is an array of HTML strings, each a <section>. */
 function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sampleLabel, sampleReports, sections, parent = true }) {
-  const plainName = svc.name.replace(/&amp;/g, '&');
-  return page({
+  page({
     file: svc.file,
+    section: parent ? 'inspection-services.html' : svc.file,
     title,
     description,
-    jsonld: serviceLd(plainName, description),
+    jsonld: serviceLd(strip(svc.name), description),
     body: `${pageHero({
       trail: parent ? [['Inspection Services', 'inspection-services.html'], [svc.name]] : [[svc.name]],
       eyebrow,
@@ -278,8 +319,9 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
       </div>
       <aside class="detail-aside">
         <div class="aside-card">
-          <h2>Request this service</h2>
-          <p>The enquiry form opens with this service already selected. You can change it if needed.</p>
+          <p class="rate-label">Estimated standard fee</p>
+          <p class="rate">${price(svc)}</p>
+          <p>Karachi city rate. Other cities are quoted separately with travel and accommodation. <a href="inspection-services.html#rates">Rate details</a></p>
           <a class="btn btn--primary btn--block" href="${enquiry(svc.key)}">${requestLabel} ${arrow}</a>
           <a class="btn btn--outline btn--block" href="${enquiry('sample-report', sampleReports)}">${icon('report')}${sampleLabel}</a>
           <a class="btn btn--outline btn--block" href="contact.html">Contact Us</a>
@@ -292,23 +334,145 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
   });
 }
 
-const built = [];
+/* ---------- Knowledge Centre articles (initial drafts; review before publication) ---------- */
+const ARTICLES = [
+  {
+    file: 'guide-aql-garment-inspection.html', cat: 'Garments', related: SERVICES[0],
+    title: 'Understanding AQL in Garment Inspection',
+    desc: 'How acceptance sampling works in garment inspection: lot, sample size, sampling plan, acceptance criteria and defect classification.',
+    intro: 'Acceptance sampling lets a buyer judge a production lot by inspecting an agreed sample instead of every piece. AQL is the part of that agreement which sets how many defects are acceptable in the sample.',
+    parts: [
+      ['Key terms', ['<strong>Lot:</strong> the quantity of goods presented for inspection.', '<strong>Sample size:</strong> the number of pieces drawn from the lot for inspection.', '<strong>Sampling plan:</strong> the agreed rules that set the sample size and the number of defects permitted.', '<strong>Acceptance criteria:</strong> the limits agreed for each class of defect.']],
+      ['Defect classification', ['<strong>Critical:</strong> a defect that may be unsafe or breach a mandatory requirement.', '<strong>Major:</strong> a defect likely to affect use, saleability or appearance.', '<strong>Minor:</strong> a small departure from the standard that is unlikely to affect use.']],
+      ['What sampling does not do', ['Sampling is not a 100% inspection.', 'A passed sample does not guarantee that every item in the lot is free from defects.', 'The result applies to the lot and conditions inspected, against the agreed criteria.']],
+    ],
+    close: 'Agree the standard, the inspection level and the acceptance limits with your inspection provider before the inspection. ISO 2859-1 is commonly used for acceptance sampling; confirm the edition that applies to your order.',
+  },
+  {
+    file: 'guide-common-garment-defects.html', cat: 'Garments', related: SERVICES[0],
+    title: 'Common Garment Defects and Quality Inspection',
+    desc: 'The garment defects most often recorded during inspection, from stitching and fabric faults to measurements, printing, labels and finishing.',
+    intro: 'Most garment defects fall into a small number of groups. Knowing them helps a buyer write clearer requirements and read an inspection report faster.',
+    parts: [
+      ['Stitching and seams', ['Broken or skipped stitches', 'Open seams', 'Puckering', 'Uneven stitching']],
+      ['Fabric and appearance', ['Fabric holes and cuts', 'Oil and dirt stains', 'Shade variation', 'Twisting and shape distortion']],
+      ['Measurements, decoration and finishing', ['Incorrect measurements', 'Print and embroidery defects', 'Wrong or missing labels and accessories', 'Pressing and finishing faults']],
+    ],
+    close: 'Whether a defect is acceptable depends on the buyer&rsquo;s requirements. Each finding is evaluated against the agreed specification and defect classification.',
+  },
+  {
+    file: 'guide-four-point-fabric-inspection.html', cat: 'Fabrics', related: SERVICES[1],
+    title: 'Four-Point Fabric Inspection System Explained',
+    desc: 'How the Four-Point system is used for visual fabric roll inspection, which defects are recorded and what else is checked on each roll.',
+    intro: 'The Four-Point system is a widely used method for visual inspection of fabric rolls. Defects found along the roll are given penalty points, and the total is compared with the agreed acceptance level.',
+    parts: [
+      ['Defects typically recorded', ['Holes', 'Stains', 'Weaving faults', 'Printing faults', 'Slubs', 'Bars']],
+      ['How points are assigned', ['Points are given to each defect according to its size, following the grading rules of the applicable method.', 'Points are totalled per roll and assessed against the agreed acceptance criteria.']],
+      ['What is recorded for each roll', ['Defect mapping along the roll', 'Width', 'Roll length and roll identification', 'Shade', 'Appearance and construction']],
+    ],
+    close: 'Agree the acceptance criteria before inspection starts. ASTM D5430 describes visual inspection and grading of fabrics; confirm the method your buyer requires.',
+  },
+  {
+    file: 'guide-fabric-gsm-and-width.html', cat: 'Fabrics', related: SERVICES[1],
+    title: 'How to Check Fabric GSM and Width',
+    desc: 'Why fabric GSM and width matter, what is compared against the specification and which tolerances and test methods apply.',
+    intro: 'GSM is the weight of a fabric in grams per square metre. Width affects cutting and fabric consumption. Both are checked against the specification before bulk cutting.',
+    parts: [
+      ['What is checked', ['GSM against the specification', 'Width against the specification', 'Consistency from roll to roll', 'Usable width compared with full width', 'Results against the agreed tolerances']],
+      ['Method', ['Follow the applicable conditioning and test method for the fabric.', 'Record the method used together with the results.']],
+    ],
+    close: 'ASTM D3776/D3776M covers mass per unit area of fabric. Use the method and tolerances specified by the buyer.',
+  },
+  {
+    file: 'guide-fabric-shade-variation.html', cat: 'Fabrics', related: SERVICES[1],
+    title: 'Fabric Shade Variation and Colour Assessment',
+    desc: 'Types of fabric shade variation, how shade is checked within and between rolls, and the role of lighting and approved standards.',
+    intro: 'Shade variation is one of the most common reasons for fabric and garment rejections. It can appear between rolls, within a roll, between lots and between garment panels.',
+    parts: [
+      ['Types of variation', ['Roll to roll', 'Within a roll', 'Lot to lot', 'Panel to panel in the finished garment']],
+      ['How shade is checked', ['Comparison with the approved standard', 'Side to side and centre to edge', 'Beginning, middle and end of the roll', 'Panel matching']],
+      ['Viewing conditions', ['Assess under the specified lighting.', 'Check for metamerism, where colours match under one light source and differ under another.', 'Use instrumental measurement when the buyer specifies it.']],
+    ],
+    close: 'Shade variation can have several process causes. An agreed approved standard and viewing condition make the assessment consistent.',
+  },
+  {
+    file: 'guide-home-textile-inspection.html', cat: 'Home Textiles', related: SERVICES[2],
+    title: 'Home Textile Quality Inspection',
+    desc: 'What is checked during home textile inspection for towels, bedding, curtains, blankets, quilts, upholstery and kitchen textiles.',
+    intro: 'Home textiles are judged on appearance, size, weight and how they are finished and packed. Each product type has its own checklist.',
+    parts: [
+      ['Products covered', ['Towels and bathrobes', 'Bedsheets, pillowcases and duvet covers', 'Curtains and upholstery', 'Blankets and quilts', 'Kitchen textiles']],
+      ['Main checks', ['Appearance', 'GSM and dimensions', 'Stitching', 'Shade', 'Print and embroidery', 'Shrinkage and absorbency where specified', 'Labels', 'Folding and packaging']],
+    ],
+    close: 'Use a product-specific checklist built from the buyer&rsquo;s specification.',
+  },
+  {
+    file: 'guide-socks-hosiery-inspection.html', cat: 'Garments', related: SERVICES[0],
+    title: 'Socks and Hosiery Quality Inspection',
+    desc: 'Common socks and hosiery defects and the checks made on knitting, size, toe and heel construction, elasticity, pairing and packaging.',
+    intro: 'Socks and hosiery have their own defect types, mostly linked to knitting, sizing and pairing.',
+    parts: [
+      ['Knitting and construction', ['Holes', 'Dropped stitches and knitting defects', 'Uneven or distorted rib', 'Toe closure', 'Heel and toe construction']],
+      ['Size, fit and appearance', ['Size and length', 'Elasticity and recovery', 'Shade', 'Pair matching']],
+      ['Presentation', ['Labels', 'Packaging']],
+    ],
+    close: 'Findings are evaluated against the buyer&rsquo;s specification and the agreed defect classification.',
+  },
+  {
+    file: 'guide-packaging-carton-inspection.html', cat: 'Packaging &amp; Shipment', related: SERVICES[3],
+    title: 'Packaging and Carton Inspection',
+    desc: 'What is checked during packaging and carton inspection: folding, polybags, assortment, labels, barcodes, shipping marks, cartons and quantity.',
+    intro: 'Packing errors are easy to prevent before shipment and costly to correct afterwards. A packaging inspection checks the order from the single unit up to the export carton.',
+    parts: [
+      ['Unit and inner packing', ['Folding', 'Polybag and inner packing', 'Barcode, product and care labels', 'Hangtags']],
+      ['Assortment', ['Assortment', 'Size ratios']],
+      ['Cartons and documents', ['Shipping marks', 'Carton dimensions and condition', 'Quantity', 'Packing list', 'Sealing and protection']],
+    ],
+    close: 'Checks are made against the buyer&rsquo;s packing instructions and the purchase order.',
+  },
+  {
+    file: 'guide-container-loading-unloading.html', cat: 'Packaging &amp; Shipment', related: CONTAINER[0],
+    title: 'Container Loading and Unloading Inspection Checklist',
+    desc: 'A checklist for container loading and unloading inspection: container condition, loading sequence, stacking, carton damage and photographs.',
+    intro: 'Loading and unloading are the two points where the condition of a shipment can be recorded. The checks differ slightly at each end.',
+    parts: [
+      ['Container condition', ['Container identity', 'Cleanliness and dryness', 'Holes, leakage and visible damage', 'Odour and contamination', 'Floor, walls and doors', 'Seals']],
+      ['During loading', ['Loading sequence', 'Handling', 'Stacking', 'Visible carton damage']],
+      ['During unloading', ['Wet, crushed, torn or shifted cartons', 'Quantities as agreed', 'Photographs of findings']],
+    ],
+    close: 'A loading or unloading inspection records what was observed. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.',
+  },
+  {
+    file: 'guide-factory-assessment.html', cat: 'Factory Assessment', related: FACTORY,
+    title: 'Factory Assessment and Quality Management',
+    desc: 'What a factory assessment reviews, from capacity and machinery to quality procedures, CAPA and traceability, and how the assessment is carried out.',
+    intro: 'A factory assessment gives a buyer a structured view of a manufacturer before or during a business relationship.',
+    parts: [
+      ['What is reviewed', ['Factory profile and capacity', 'Machinery and workflow', 'Quality procedures', 'Incoming materials', 'In-line and final checks', 'Testing facilities', 'Defects and CAPA', 'Documents and traceability', 'Production readiness']],
+      ['How it works', ['Define the scope with the client.', 'Visit the factory and review facilities, processes and records.', 'Report findings, gaps, risks and recommendations.']],
+    ],
+    close: 'A factory assessment is an independent evaluation against an agreed scope. It is not a certification.',
+  },
+];
 
 /* ================= HOME ================= */
 const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Trims &amp; Accessories', 'Towels', 'Bedding', 'Curtains', 'Blankets', 'Quilts', 'Kitchen Textiles'];
 const tickerList = (hidden) => `<ul${hidden ? ' aria-hidden="true"' : ''}>${tickerItems.map((t) => `<li>${t}</li>`).join('')}</ul>`;
+const articleCard = (a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
+const coverageBlock = `<ul class="cities">${CITIES.map((c) => `<li>${icon('pin')}${c}</li>`).join('')}<li class="more">+ other manufacturing locations</li></ul>`;
 
-built.push(page({
+page({
   file: 'index.html',
   title: 'Textile Inspection Services in Pakistan | MK Textile Service',
-  description: 'Independent textile inspection and factory assessment services in Pakistan for garments, fabrics, home textiles and related products.',
+  description: 'Independent third-party textile inspection and factory assessment services across Pakistan for international buyers, brands and businesses.',
   jsonld: {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
     name: SITE,
-    description: 'Independent textile inspection and factory assessment services in Pakistan.',
+    url: SITE_URL + '/',
+    email: EMAIL,
+    description: 'Independent third-party textile inspection and factory assessment services in Pakistan.',
     areaServed: { '@type': 'Country', name: 'Pakistan' },
-    ...(SITE_URL ? { url: SITE_URL + '/' } : {}),
   },
   body: `<section class="hero">
     <svg class="hero-threads" viewBox="0 0 1440 360" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
@@ -318,17 +482,17 @@ built.push(page({
     </svg>
     <div class="container hero-grid">
       <div>
-        <p class="eyebrow eyebrow--light">Independent &middot; Impartial &middot; Evidence-based</p>
+        <p class="eyebrow eyebrow--light">Independent third-party inspection</p>
         <h1>Textile Inspection Services <span>in Pakistan</span></h1>
-        <p class="lead">Independent and professional inspection and factory assessment services for garments, fabrics, home textiles and related products.</p>
+        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards across Pakistan.</p>
         <div class="btn-row">
           <a class="btn btn--teal" href="inspection-services.html">Our Services ${arrow}</a>
           <a class="btn btn--ghost" href="contact.html">Contact Us</a>
         </div>
         <ul class="hero-points">
-          <li>${icon('check')}Garments, fabrics and home textiles</li>
-          <li>${icon('check')}Pre-production to pre-shipment</li>
-          <li>${icon('check')}Clear, evidence-based reports</li>
+          <li>${icon('check')}30+ years of industry experience</li>
+          <li>${icon('check')}Nationwide coverage in Pakistan</li>
+          <li>${icon('check')}Rates from US$200 / Man-Day</li>
         </ul>
       </div>
       <div class="hero-card">
@@ -340,11 +504,7 @@ built.push(page({
           ${icon('clipboard')}
         </div>
         <ul class="stage-list">
-          <li><span class="code">PPC</span>Pre-Production Check${icon('check')}</li>
-          <li><span class="code">IPC</span>Initial Production Check${icon('check')}</li>
-          <li><span class="code">DUPRO</span>During Production Check${icon('check')}</li>
-          <li><span class="code">FRI</span>Final Random Inspection${icon('check')}</li>
-          <li><span class="code">PSI</span>Pre-Shipment Inspection${icon('check')}</li>
+          ${STAGES.slice(0, 5).map(([code, name]) => `<li><span class="code">${code}</span>${name}${icon('check')}</li>`).join('\n          ')}
         </ul>
         <p class="hero-card-foot">Plus 100% inspection, re-inspection and in-line quality checks.</p>
       </div>
@@ -356,37 +516,17 @@ built.push(page({
   </div>
 
   <section class="section">
-    <div class="container">
-      <div class="section-head reveal">
-        <p class="eyebrow">Where to start</p>
-        <h2>Find what you need in one step</h2>
-        <p>Choose a route below. Detailed scope, checking points and deliverables are on each service page.</p>
+    <div class="container intro">
+      <div class="reveal">
+        <p class="eyebrow">About MK Textile Service</p>
+        <h2>Experience you can trust. Quality you can rely on.</h2>
+        <p class="lead">With 30+ years of industry experience, our approach is built on practical textile knowledge, hands-on quality assurance expertise and a strong understanding of manufacturing processes.</p>
+        <a class="link-arrow" href="about.html">About the company ${arrow}</a>
       </div>
-      <div class="grid grid--4">
-        <a class="card reveal" href="inspection-services.html">
-          <span class="icon-tile">${icon('search')}</span>
-          <h3>Inspection Services</h3>
-          <p>Explore garment, fabric and material, home textile, and packaging and shipment inspection.</p>
-          <span class="link-arrow">View services ${arrow}</span>
-        </a>
-        <a class="card reveal" style="--d:70ms" href="factory-assessment.html">
-          <span class="icon-tile">${icon('factory')}</span>
-          <h3>Factory Assessment</h3>
-          <p>Learn about factory capability, quality management and production readiness assessments.</p>
-          <span class="link-arrow">View assessment ${arrow}</span>
-        </a>
-        <a class="card reveal" style="--d:140ms" href="sample-reports.html">
-          <span class="icon-tile">${icon('report')}</span>
-          <h3>Sample Reports</h3>
-          <p>Choose the report type you would like to review and submit a private request.</p>
-          <span class="link-arrow">Request a sample ${arrow}</span>
-        </a>
-        <a class="card reveal" style="--d:210ms" href="about.html">
-          <span class="icon-tile">${icon('users')}</span>
-          <h3>About Us</h3>
-          <p>Learn about MK Textile Service, its approach and quality commitment.</p>
-          <span class="link-arrow">About the company ${arrow}</span>
-        </a>
+      <div class="stat-card reveal" style="--d:100ms">
+        <p class="stat">30+</p>
+        <p class="stat-label">Years of Industry Experience</p>
+        <p>Independent inspections, honest findings, clear communication and dependable quality support.</p>
       </div>
     </div>
   </section>
@@ -394,14 +534,50 @@ built.push(page({
   <section class="section section--alt">
     <div class="container">
       <div class="section-head reveal">
-        <p class="eyebrow">Why MK Textile Service</p>
-        <h2>Built on independence and clear reporting</h2>
+        <p class="eyebrow">Inspection Services</p>
+        <h2>Four inspection services, one clear report</h2>
+        <p>Open a service to see its scope, checkpoints and estimated rate.</p>
+      </div>
+      <div class="grid grid--4">
+        ${SERVICES.map((s, i) => `<a class="card reveal"${i ? ` style="--d:${i * 70}ms"` : ''} href="${s.file}">
+          <span class="icon-tile">${icon(s.icon)}</span>
+          <h3>${s.name}</h3>
+          <p>${s.short}</p>
+          <span class="link-arrow">View details ${arrow}</span>
+        </a>`).join('\n        ')}
+      </div>
+      <p class="after-grid reveal">Also available: <a href="${CONTAINER[0].file}">Container Loading Supervision</a> and <a href="${CONTAINER[1].file}">Container Unloading Inspection</a>.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="feature reveal">
+        <span class="icon-tile">${icon('factory')}</span>
+        <div>
+          <p class="eyebrow">Factory Assessment</p>
+          <h2>Factory Assessment &amp; Quality Audit</h2>
+          <p>A structured review of a manufacturer&rsquo;s production capability, quality management system, facilities and readiness to meet your requirements, reported with observations and photographs.</p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="factory-assessment.html">View Factory Assessment ${arrow}</a>
+            <a class="btn btn--outline" href="${enquiry('factory-assessment')}">Discuss an Assessment</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Why Choose MK Textile Service</p>
+        <h2>Professional, objective and reliable</h2>
       </div>
       <ul class="strengths reveal">
-        <li>${icon('scale')}<div><h3>Independent Approach</h3><p>Impartial inspection, with findings reported as observed.</p></div></li>
-        <li>${icon('users')}<div><h3>Experienced Team</h3><p>Textile and apparel quality specialists.</p></div></li>
-        <li>${icon('shield')}<div><h3>Quality Focus</h3><p>From incoming material to final shipment.</p></div></li>
-        <li>${icon('report')}<div><h3>Professional Reporting</h3><p>Clear, factual and evidence-based reports.</p></div></li>
+        <li>${icon('scale')}<div><h3>Independent Inspections</h3><p>Third-party and objective, tailored to each client&rsquo;s requirements.</p></div></li>
+        <li>${icon('shield')}<div><h3>Honest Findings</h3><p>Results reported against the agreed specifications and criteria.</p></div></li>
+        <li>${icon('report')}<div><h3>Clear Communication</h3><p>Clear reports supported by photographic evidence.</p></div></li>
+        <li>${icon('users')}<div><h3>Dependable Support</h3><p>30+ years of industry experience behind every assignment.</p></div></li>
       </ul>
     </div>
   </section>
@@ -413,15 +589,44 @@ built.push(page({
         <h2>From enquiry to report in four steps</h2>
       </div>
       <ol class="steps">
-        <li class="reveal"><h3>Send your enquiry</h3><p>Tell us the product, the service you need and your preferred inspection date.</p></li>
-        <li class="reveal" style="--d:70ms"><h3>Agree the scope</h3><p>Inspection criteria, sampling level and acceptance limits are agreed with you.</p></li>
-        <li class="reveal" style="--d:140ms"><h3>On-site inspection</h3><p>The inspection or assessment is carried out against the agreed criteria.</p></li>
-        <li class="reveal" style="--d:210ms"><h3>Receive your report</h3><p>Findings, defect classification and photographic evidence in one clear report.</p></li>
+        <li class="reveal"><h3>Enquiry</h3><p>Send the product, service, location and preferred inspection date.</p></li>
+        <li class="reveal" style="--d:70ms"><h3>Coordination</h3><p>Scope, sampling plan, acceptance criteria and schedule are agreed with you.</p></li>
+        <li class="reveal" style="--d:140ms"><h3>Inspection</h3><p>The inspection or assessment is carried out on site against the agreed criteria.</p></li>
+        <li class="reveal" style="--d:210ms"><h3>Reporting</h3><p>Findings, defect classification and photographic evidence in one clear report.</p></li>
       </ol>
     </div>
   </section>
+
+  <section class="section section--alt">
+    <div class="container intro">
+      <div class="reveal">
+        <p class="eyebrow">Nationwide Service Coverage</p>
+        <h2>Across Pakistan&rsquo;s textile and manufacturing centres</h2>
+        <p class="lead">MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres.</p>
+        ${coverageBlock}
+      </div>
+      <div class="panel reveal" style="--d:100ms">
+        <h3>Rates and locations</h3>
+        <p class="muted">Standard inspection rates apply to Karachi city. Assignments in other locations are quoted separately, with applicable travel and accommodation expenses included in the final quotation.</p>
+        <a class="link-arrow" href="inspection-services.html#rates">View estimated rates ${arrow}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Knowledge Centre</p>
+        <h2>Practical inspection guides</h2>
+      </div>
+      <div class="grid grid--3">
+        ${[ARTICLES[0], ARTICLES[2], ARTICLES[8]].map((a, i) => articleCard(a, i * 70)).join('\n        ')}
+      </div>
+      <p class="after-grid reveal"><a class="link-arrow" href="knowledge-centre.html">All guides ${arrow}</a></p>
+    </div>
+  </section>
   ${defaultCta}`,
-}));
+});
 
 /* ================= INSPECTION SERVICES OVERVIEW ================= */
 const OVERVIEW = [
@@ -429,43 +634,44 @@ const OVERVIEW = [
     svc: SERVICES[0],
     intro: 'Independent quality inspections of apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, and children&rsquo;s wear.',
     coverage: ['Apparel', 'Denim &amp; woven', 'Knitwear', 'Sportswear', 'Socks &amp; hosiery', 'Children&rsquo;s wear'],
-    activities: ['Workmanship, stitching and seams', 'Measurements and tolerances', 'Shade, print, embroidery and trims', 'Packing and assortment'],
+    activities: ['Workmanship and stitching', 'Measurements', 'Print, embroidery, trims and labels', 'Defect classification with photographic evidence'],
   },
   {
     svc: SERVICES[1],
-    intro: 'Inspection of fabric rolls, construction, GSM, shade, dimensional performance, trims and accessories.',
-    coverage: ['Woven fabric', 'Knitted fabric', 'Denim fabric', 'Trims &amp; accessories'],
-    activities: ['Fabric roll inspection, Four-Point System where applicable', 'GSM and width verification', 'Shade and colour variation', 'Shrinkage and dimensional stability'],
+    intro: 'Inspection of fabric rolls, construction, GSM, width, shade, dimensional performance, trims and accessories.',
+    coverage: ['Woven fabric', 'Knitted fabric', 'Denim', 'Trims &amp; accessories'],
+    activities: ['Fabric roll inspection, Four-Point system where applicable', 'GSM, width and roll length', 'Shade and colour variation', 'Shrinkage and dimensional stability'],
   },
   {
     svc: SERVICES[2],
     intro: 'Inspection of towels, bedding, curtains, blankets, quilts, kitchen textiles and related home textile products.',
     coverage: ['Towels &amp; bathrobes', 'Bedding', 'Curtains', 'Blankets &amp; quilts', 'Kitchen textiles'],
-    activities: ['Fabric quality and construction', 'Dimensions and tolerances', 'Stitching, colour and appearance', 'Set composition, assortment and packing'],
+    activities: ['Fabric appearance and construction', 'GSM and dimensions', 'Stitching, shade, print and embroidery', 'Labels, folding and packaging'],
   },
   {
     svc: SERVICES[3],
-    intro: 'Verification of packing, assortment, labels, cartons, quantities, shipping marks and container loading.',
-    coverage: ['Finished-goods packing', 'Cartons', 'Labels &amp; barcodes', 'Container loading'],
-    activities: ['Assortment and size ratios', 'Barcode and label verification', 'Carton markings and quantity verification', 'Container condition and loading supervision'],
+    intro: 'Verification of packing, assortment, labels, cartons, quantities, shipping marks and container condition.',
+    coverage: ['Inner packing', 'Labels &amp; barcodes', 'Cartons', 'Container condition'],
+    activities: ['Folding, polybag and inner packing', 'Assortment and size ratios', 'Shipping marks, carton condition and quantity', 'Container condition checks'],
   },
 ];
 
-built.push(page({
+page({
   file: 'inspection-services.html',
-  title: 'Inspection Services in Pakistan | Garment, Fabric, Home Textile | MK Textile Service',
-  description: 'Four independent inspection services in Pakistan: garment, fabric and material, home textile, and packaging and shipment inspection.',
+  title: 'Inspection Services in Pakistan | Scope and Estimated Rates | MK Textile Service',
+  description: 'Third-party garment, fabric, home textile, packaging and container inspection services in Pakistan, with estimated man-day rates.',
   body: `${pageHero({
     trail: [['Inspection Services']],
     eyebrow: 'Inspection Services',
     h1: 'Inspection Services in Pakistan',
-    lead: 'Four inspection categories covering textile products from incoming material to loaded container. Open a service to review its scope, checking points and deliverables.',
+    lead: 'Four inspection categories and two container services, covering textile products from incoming material to the loaded container. Open a service to review its scope and checkpoints.',
+    buttons: `<a class="btn btn--outline" href="#rates">Estimated rates</a>`,
   })}
   <section class="section">
     <div class="container">
       <div class="grid grid--2">
         ${OVERVIEW.map((o, i) => `<article class="card service-card reveal"${i % 2 ? ' style="--d:80ms"' : ''}>
-          <div class="service-card-head"><span class="icon-tile">${icon(o.svc.icon)}</span><h2>${o.svc.name}</h2></div>
+          <div class="service-card-head"><span class="icon-tile">${icon(o.svc.icon)}</span><div><h2>${o.svc.name}</h2><p class="card-rate">${price(o.svc)}</p></div></div>
           <p>${o.intro}</p>
           <h3>Product coverage</h3>
           ${list(o.coverage, 'chips')}
@@ -476,98 +682,94 @@ built.push(page({
       </div>
     </div>
   </section>
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Container Services</p>
+        <h2>Loading supervision and unloading inspection</h2>
+        <p>Two separate services for the start and end of the shipment journey.</p>
+      </div>
+      <div class="grid grid--2">
+        ${CONTAINER.map((s, i) => `<a class="card reveal"${i ? ' style="--d:80ms"' : ''} href="${s.file}">
+          <span class="icon-tile">${icon(s.icon)}</span>
+          <h3>${s.name}</h3>
+          <p>${s.short}</p>
+          <p class="card-rate">${price(s)}</p>
+          <span class="link-arrow">View details ${arrow}</span>
+        </a>`).join('\n        ')}
+      </div>
+    </div>
+  </section>
+  <section class="section" id="rates">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Estimated Rates</p>
+        <h2>Estimated standard fees</h2>
+        <p>Rates are in US dollars per man-day. They are estimates, not fixed quotations.</p>
+      </div>
+      <div class="rates reveal">
+        <table>
+          <thead><tr><th scope="col">Service</th><th scope="col">Estimated standard fee</th></tr></thead>
+          <tbody>
+            ${ALL.map((s) => `<tr><th scope="row"><a href="${s.file}">${s.name}</a></th><td>US$${s.rate} / Man-Day</td></tr>`).join('\n            ')}
+          </tbody>
+        </table>
+      </div>
+      <div class="reveal" style="margin-top:22px">
+        ${note('How rates apply', RATE_NOTE)}
+      </div>
+    </div>
+  </section>
   ${ctaBand(
     'Need to evaluate a manufacturer?',
     'Factory Assessment &amp; Quality Audit is a separate service covering capability, quality management and production readiness.',
     `<a class="btn btn--teal" href="factory-assessment.html">Factory Assessment ${arrow}</a><a class="btn btn--ghost" href="contact.html#enquiry">Get in Touch</a>`
   )}`,
-}));
+});
 
 /* ================= GARMENT ================= */
-const STAGES = [
-  ['PPC', 'Pre-Production Check', 'Review materials, specifications, samples, production readiness and quality requirements before bulk production.'],
-  ['IPC', 'Initial Production Check', 'Check initial production output, workmanship, measurements and process setup.'],
-  ['DUPRO', 'During Production Check', 'Monitor bulk production quality, defects, measurements and corrective actions.'],
-  ['FRI', 'Final Random Inspection', 'Evaluate a selected sample of completed goods against agreed inspection criteria.'],
-  ['PSI', 'Pre-Shipment Inspection', 'Verify shipment readiness, product quality, packing and shipping requirements.'],
-  ['100%', '100% Inspection', 'Inspect every unit within the agreed inspection scope.'],
-  ['RE', 'Re-Inspection', 'Verify corrections after an earlier inspection or rejection.'],
-  ['IN-LINE', 'In-Line Quality Check', 'Monitor workmanship and quality during ongoing production.'],
-];
-
-built.push(servicePage({
+servicePage({
   svc: SERVICES[0],
   title: 'Garment Inspection in Pakistan | PPC, DUPRO, FRI, PSI | MK Textile Service',
-  description: 'Independent garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery, from pre-production check to pre-shipment inspection.',
+  description: 'Third-party garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery, from pre-production check to pre-shipment inspection.',
   eyebrow: 'Inspection Services',
   intro: 'Independent garment inspection services designed to evaluate product quality, workmanship, measurements, appearance and packing at different production stages.',
   requestLabel: 'Request Inspection Service',
   sampleLabel: 'Request Sample Inspection Report',
   sampleReports: 'final-garment',
   sections: [
-    `<section class="reveal">
-          <h2>Product coverage</h2>
-          ${list(['Apparel and garments', 'Denim and woven garments', 'Knitwear', 'Sportswear', 'Socks and hosiery', 'Children&rsquo;s wear'], 'chips')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Inspection stages</h2>
-          <p>Inspection can be arranged at one stage or at several stages of the same order.</p>
-          <ul class="rows">
+    block('Product coverage', list(['Apparel and garments', 'Denim and woven garments', 'Knitwear', 'Sportswear', 'Socks and hosiery', 'Children&rsquo;s wear'], 'chips')),
+    block('Inspection stages', `<ul class="rows">
             ${STAGES.map(([code, name, text]) => `<li><strong><span class="code">${code}</span>${name}</strong><span>${text}</span></li>`).join('\n            ')}
-          </ul>
-        </section>`,
+          </ul>`, 'Inspection can be arranged at one stage or at several stages of the same order.'),
+    block('Checkpoints', list(['Product specifications and approved samples', 'Fabric and material condition', 'Workmanship and stitching', 'Measurements', 'Construction and assembly', 'Print and embroidery', 'Trims and accessories', 'Labels and branding', 'Colour and shade consistency', 'Functional and appearance checks', 'Defect classification', 'Packing and presentation where applicable', 'Photographic evidence'], 'checks checks--2')),
     `<section class="reveal">
-          <h2>Main checking points</h2>
-          ${list(['Appearance and workmanship', 'Stitching and seams', 'Measurements and tolerances', 'Fabric and material defects', 'Shade and colour consistency', 'Print, embroidery and trims', 'Labels and branding', 'Packing and assortment', 'Defect classification and results'], 'checks checks--2')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Reporting and deliverables</h2>
-          <div class="panel">
-            ${list(['Inspection summary', 'Defect details and classification', 'Photographic evidence', 'Measurement findings where applicable', 'Result against agreed criteria', 'Corrective-action observations where required'], 'checks checks--2')}
-          </div>
-        </section>`,
-    `<section class="reveal">
-          <div class="note">
-            ${icon('info')}
-            <div>
-              <h3>AQL and sampling</h3>
-              <p>The sampling level and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.</p>
-            </div>
-          </div>
+          ${note('Scope, sampling and acceptance criteria', 'The inspection scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.')}
         </section>`,
   ],
-}));
+});
 
 /* ================= FABRIC ================= */
-built.push(servicePage({
+servicePage({
   svc: SERVICES[1],
   title: 'Fabric &amp; Material Inspection in Pakistan | Four-Point System | MK Textile Service',
-  description: 'Fabric and material inspection in Pakistan: fabric rolls, Four-Point System, GSM, width, shade, shrinkage, spirality, trims and accessories.',
+  description: 'Fabric and material inspection in Pakistan: fabric rolls, Four-Point system, GSM, width, shade, shrinkage, spirality, trims and accessories.',
   eyebrow: 'Inspection Services',
   intro: 'Inspection of fabric and garment materials to identify quality variations and potential problems before they affect bulk production.',
   requestLabel: 'Request Fabric Inspection',
   sampleLabel: 'Request Sample Fabric Inspection Report',
   sampleReports: 'fabric',
   sections: [
+    block('Material coverage', list(['Woven fabric', 'Knitted fabric', 'Denim', 'Other textile materials', 'Trims and accessories'], 'chips')),
+    block('What is inspected', list(['Fabric roll inspection', 'Four-Point system where applicable', 'Construction and appearance', 'GSM', 'Width', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Defect mapping', 'Roll and lot identification', 'Roll length', 'Incoming trims and accessories'], 'checks checks--2')),
     `<section class="reveal">
-          <h2>Material coverage</h2>
-          ${list(['Woven fabric', 'Knitted fabric', 'Denim fabric', 'Trims and accessories'], 'chips')}
-        </section>`,
-    `<section class="reveal">
-          <h2>What is inspected</h2>
-          ${list(['Fabric roll inspection, with the Four-Point System where applicable', 'Fabric construction and appearance', 'GSM and width verification', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Fabric defects and defect mapping', 'Roll identification and lot segregation', 'Trims and accessories incoming inspection'], 'checks checks--2')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Reporting and deliverables</h2>
-          <div class="panel">
-            ${list(['Roll-wise findings', 'Defect records and photographs', 'Four-Point results where applicable', 'Shade and lot observations', 'GSM, width and dimensional results where checked', 'Overall summary'], 'checks checks--2')}
-          </div>
+          ${note('Method and acceptance criteria', 'The applicable inspection method and acceptance criteria depend on the buyer&rsquo;s requirements and are confirmed before the inspection.')}
         </section>`,
   ],
-}));
+});
 
 /* ================= HOME TEXTILE ================= */
-built.push(servicePage({
+servicePage({
   svc: SERVICES[2],
   title: 'Home Textile Inspection in Pakistan | Towels, Bedding, Curtains | MK Textile Service',
   description: 'Home textile inspection in Pakistan for towels, bathrobes, bedsheets, duvet covers, curtains, blankets, quilts and kitchen textiles.',
@@ -577,108 +779,101 @@ built.push(servicePage({
   sampleLabel: 'Request Sample Home Textile Report',
   sampleReports: 'home-textile',
   sections: [
+    block('Product coverage', list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Curtains', 'Upholstery', 'Blankets', 'Quilts', 'Kitchen textiles', 'Related products'], 'chips')),
+    block('Checkpoints', list(['Fabric appearance and construction', 'GSM and dimensions', 'Stitching and seams', 'Shade', 'Print and embroidery', 'Shrinkage and absorbency where specified', 'Labels', 'Folding and packaging'], 'checks checks--2')),
     `<section class="reveal">
-          <h2>Product coverage</h2>
-          ${list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Curtains', 'Upholstery', 'Blankets', 'Quilts', 'Kitchen textiles'], 'chips')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Main checkpoints</h2>
-          ${list(['Fabric quality and construction', 'GSM and material verification', 'Dimensions and tolerances', 'Stitching and seams', 'Colour and appearance', 'Printing, embroidery and embellishments', 'Specified functional checks', 'Labels and care instructions', 'Set composition, assortment and packing'], 'checks checks--2')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Reporting and deliverables</h2>
-          <div class="panel">
-            ${list(['Product-wise findings', 'Measurement results', 'Defect photographs', 'Packing and assortment findings', 'Summary against buyer requirements'], 'checks checks--2')}
-          </div>
+          ${note('Product-specific checklists', 'Each home textile product is inspected against a checklist built for that product and the buyer&rsquo;s specification.')}
         </section>`,
   ],
-}));
+});
 
 /* ================= PACKAGING ================= */
-built.push(servicePage({
+servicePage({
   svc: SERVICES[3],
-  title: 'Packaging &amp; Shipment Inspection in Pakistan | Container Loading | MK Textile Service',
-  description: 'Packaging and shipment inspection in Pakistan: packing, assortment, barcodes, labels, cartons, quantity verification and container loading supervision.',
+  title: 'Packaging &amp; Shipment Inspection in Pakistan | MK Textile Service',
+  description: 'Packaging and shipment inspection in Pakistan: folding, inner packing, assortment, labels, barcodes, shipping marks, cartons, quantity and container condition.',
   eyebrow: 'Inspection Services',
   intro: 'Inspection of finished-goods packing and shipment preparation to help verify order presentation, quantity, labelling and loading requirements.',
   requestLabel: 'Request Packaging / Shipment Inspection',
   sampleLabel: 'Request Sample Shipment Report',
   sampleReports: 'packaging-shipment',
   sections: [
+    block('Packing and shipment checks', list(['Folding and presentation', 'Polybag and inner packing', 'Assortment and size ratios', 'Labels, care labels, barcode and hangtags', 'Shipping marks and carton markings', 'Carton dimensions and condition', 'Quantity', 'Packing list', 'Shipment preparation'], 'checks checks--2')),
+    block('Container condition checks', list(['Container identity', 'Cleanliness and dryness', 'Visible damage', 'Holes and leakage', 'Odour and contamination', 'Floor, walls and roof', 'Doors and locking arrangement', 'Seal details where applicable'], 'checks checks--2')),
+    block('Related container services', `<div class="grid grid--2">
+            ${CONTAINER.map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
+          </div>`),
+  ],
+});
+
+/* ================= CONTAINER LOADING ================= */
+servicePage({
+  svc: CONTAINER[0],
+  title: 'Container Loading Supervision in Pakistan | MK Textile Service',
+  description: 'Container loading supervision in Pakistan: container condition before loading, carton quantities, loading sequence, stacking, photographs and seal record.',
+  eyebrow: 'Container Services',
+  intro: 'On-site supervision of container loading, recording the condition of the container, the goods loaded and how they were loaded.',
+  requestLabel: 'Request Loading Supervision',
+  sampleLabel: 'Request Sample Loading Report',
+  sampleReports: 'container-loading',
+  sections: [
+    block('What is supervised', list(['Container identity and condition before loading', 'Carton identification and quantities as agreed', 'Loading sequence', 'Handling and stacking', 'Load arrangement', 'Visible carton damage and discrepancies', 'Photographs', 'Seal details', 'Final loading record'], 'checks checks--2')),
     `<section class="reveal">
-          <h2>What is verified</h2>
-          ${list(['Packing quality and presentation', 'Assortment and size ratios', 'Barcode and label verification', 'Carton dimensions and condition', 'Carton markings and shipping marks', 'Quantity verification', 'Packing list and order-document checks', 'Container condition and loading supervision', 'Sealing and shipment confirmation'], 'checks checks--2')}
-        </section>`,
-    `<section class="reveal">
-          <h2>Reporting and deliverables</h2>
-          <div class="panel">
-            ${list(['Packing findings', 'Barcode and labelling observations', 'Carton and quantity verification', 'Container photographs', 'Loading evidence', 'Shipment inspection summary'], 'checks checks--2')}
-          </div>
+          ${note('Scope of the service', 'Loading supervision records what was observed at the time of loading. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
         </section>`,
   ],
-}));
+});
+
+/* ================= CONTAINER UNLOADING ================= */
+servicePage({
+  svc: CONTAINER[1],
+  title: 'Container Unloading Inspection in Pakistan | MK Textile Service',
+  description: 'Container unloading inspection in Pakistan: seal and container condition, unloading sequence, wet or damaged cartons, quantity discrepancies and photographs.',
+  eyebrow: 'Container Services',
+  intro: 'Inspection during container unloading, recording the condition of the container and cartons on arrival.',
+  requestLabel: 'Request Unloading Inspection',
+  sampleLabel: 'Request Sample Unloading Report',
+  sampleReports: 'container-unloading',
+  sections: [
+    block('What is inspected', list(['Container identity and seal', 'Condition before opening', 'Internal condition', 'Unloading sequence and handling', 'Wet, crushed, torn or shifted cartons', 'Quantity discrepancies where agreed', 'Visible damage', 'Photographs', 'Final unloading report'], 'checks checks--2')),
+    `<section class="reveal">
+          ${note('Scope of the service', 'An unloading inspection records what was observed at the time of unloading. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
+        </section>`,
+  ],
+});
 
 /* ================= FACTORY ASSESSMENT ================= */
-const AREAS = [
-  ['Factory Profile', 'Company information, location, products and manufacturing background.'],
-  ['Infrastructure', 'Buildings, machinery, production facilities and utilities.'],
-  ['Production Capability', 'Capacity, production processes and available resources.'],
-  ['Quality Management', 'Quality procedures, inspection systems, records and controls.'],
-  ['Production Processes', 'Cutting, sewing, finishing, packing and other relevant operations.'],
-  ['Compliance &amp; Workplace', 'Workplace conditions, safety practices and applicable requirements.'],
-  ['Documentation', 'Production, quality, maintenance and operational records.'],
-  ['CAPA Management', 'Corrective and preventive action systems and follow-up.'],
-  ['Production Readiness', 'Ability to meet proposed product and order requirements.'],
-];
-
-built.push(servicePage({
+servicePage({
   svc: FACTORY,
   parent: false,
   title: 'Factory Assessment &amp; Quality Audit in Pakistan | MK Textile Service',
-  description: 'Factory assessment and quality audit in Pakistan: production capability, quality management, infrastructure, documentation, CAPA and production readiness.',
+  description: 'Factory assessment and quality audit in Pakistan: production capability, quality management system, facilities, documentation, CAPA and production readiness.',
   eyebrow: 'Factory Assessment',
   intro: 'A structured assessment of manufacturing facilities to evaluate production capability, quality management, infrastructure, operational controls and readiness to meet buyer requirements.',
   requestLabel: 'Discuss Factory Assessment',
   sampleLabel: 'Request Sample Factory Assessment Report',
   sampleReports: 'factory-assessment',
   sections: [
+    block('Assessment scope', list(['Factory profile', 'Infrastructure', 'Production capability', 'Machinery and facilities', 'Quality management system', 'Production processes', 'Incoming material control', 'In-line and final quality control', 'Testing facilities and records', 'Documentation', 'Defect management', 'CAPA', 'Production readiness', 'Compliance and workplace checks within the agreed scope'], 'checks checks--2')),
+    block('Assessment workflow', `<ol class="steps steps--3">
+            <li><h3>Enquiry</h3><p>You send the factory details and what you need assessed.</p></li>
+            <li><h3>Confirm scope</h3><p>The assessment scope and criteria are agreed.</p></li>
+            <li><h3>Location and schedule</h3><p>Factory location and visit date are confirmed.</p></li>
+            <li><h3>Factory visit</h3><p>On-site visit to the manufacturing facility.</p></li>
+            <li><h3>Review</h3><p>Facilities, processes and records are reviewed.</p></li>
+            <li><h3>Observations</h3><p>Observations are recorded with photographs.</p></li>
+            <li><h3>Assessment report</h3><p>Findings are compiled in a structured report.</p></li>
+            <li><h3>Private sharing</h3><p>The report is shared privately with the client.</p></li>
+            <li><h3>CAPA follow-up</h3><p>Follow-up on corrective actions if agreed.</p></li>
+          </ol>`),
     `<section class="reveal">
-          <h2>Assessment areas</h2>
-          <ul class="rows">
-            ${AREAS.map(([name, text]) => `<li><strong>${name}</strong><span>${text}</span></li>`).join('\n            ')}
-          </ul>
-        </section>`,
-    `<section class="reveal">
-          <h2>Assessment workflow</h2>
-          <ol class="steps steps--3">
-            <li><h3>Planning and scope</h3><p>Planning and scope confirmation with the client.</p></li>
-            <li><h3>Factory visit</h3><p>On-site visit and review of the facility.</p></li>
-            <li><h3>Evaluation</h3><p>Evaluation against the agreed criteria.</p></li>
-            <li><h3>Risks and gaps</h3><p>Risk and gap identification.</p></li>
-            <li><h3>Assessment report</h3><p>Findings and evidence in a structured report.</p></li>
-            <li><h3>CAPA follow-up</h3><p>Follow-up on corrective actions where agreed.</p></li>
-          </ol>
-        </section>`,
-    `<section class="reveal">
-          <h2>Report contents</h2>
-          <div class="panel">
-            ${list(['Factory profile', 'Assessment scope', 'Findings', 'Photographic evidence', 'Quality-system observations', 'Production capability', 'Risk observations', 'CAPA recommendations', 'Overall summary'], 'checks checks--2')}
-          </div>
-        </section>`,
-    `<section class="reveal">
-          <div class="note">
-            ${icon('info')}
-            <div>
-              <h3>Scope and criteria</h3>
-              <p>The exact scope and criteria, including any workplace, health and safety or specialised elements, are defined and agreed with the client before each assessment. The assessment is an independent evaluation and is not an accredited certification audit.</p>
-            </div>
-          </div>
+          ${note('Not a certification', 'A factory assessment is an independent evaluation against a scope agreed with the client. It is not a certification, and no formal certificate is issued.')}
         </section>`,
   ],
-}));
+});
 
 /* ================= SAMPLE REPORTS ================= */
-built.push(page({
+page({
   file: 'sample-reports.html',
   title: 'Request Sample Inspection Reports | MK Textile Service',
   description: 'Select the inspection or factory assessment report types you would like to review and submit a private sample-report request to MK Textile Service.',
@@ -686,7 +881,7 @@ built.push(page({
     trail: [['Sample Reports']],
     eyebrow: 'Sample Reports',
     h1: 'Request Sample Reports',
-    lead: 'Select one or more report types you would like to review. Samples are shared privately after your request has been reviewed.',
+    lead: 'Select one or more report types you would like to review. Samples are shared privately by email or WhatsApp after your request has been reviewed.',
     iconName: 'report',
   })}
   <section class="section">
@@ -714,92 +909,86 @@ built.push(page({
       </div>
       <ol class="steps">
         <li class="reveal"><h3>Select report types</h3><p>Choose one or more of the report types above.</p></li>
-        <li class="reveal" style="--d:70ms"><h3>Complete the form</h3><p>The enquiry form opens with your selection filled in. Add your contact details and purpose.</p></li>
+        <li class="reveal" style="--d:70ms"><h3>Complete the form</h3><p>The enquiry form opens with your selection filled in. Add your contact details.</p></li>
         <li class="reveal" style="--d:140ms"><h3>Request is reviewed</h3><p>MK Textile Service reviews each sample-report request.</p></li>
-        <li class="reveal" style="--d:210ms"><h3>Sample shared privately</h3><p>An approved sample is shared with you directly.</p></li>
+        <li class="reveal" style="--d:210ms"><h3>Sample shared privately</h3><p>A suitable sample is sent to you by email or WhatsApp.</p></li>
       </ol>
-      <div class="note reveal" style="margin-top:28px">
-        ${icon('shield')}
-        <div>
-          <h3>Confidentiality</h3>
-          <p>Confidential client inspection reports are never published, and reports are not available as open downloads.</p>
-        </div>
+      <div class="reveal" style="margin-top:28px">
+        ${note('Confidentiality', 'There is no public report library. Confidential client inspection reports are never published, and reports are not available as open downloads.', 'shield')}
       </div>
     </div>
   </section>`,
-}));
+});
 
 /* ================= ABOUT ================= */
-built.push(page({
+page({
   file: 'about.html',
-  title: 'About MK Textile Service | Independent Textile Inspection in Pakistan',
-  description: 'MK Textile Service provides independent textile inspection and factory assessment services in Pakistan with clear, evidence-based reporting.',
+  title: 'About MK Textile Service | Third-Party Textile Inspection in Pakistan',
+  description: 'MK Textile Service provides independent third-party inspection and factory assessment services in Pakistan, built on 30+ years of industry experience.',
   body: `${pageHero({
     trail: [['About Us']],
-    eyebrow: 'About Us',
-    h1: 'Independent inspection, clearly reported',
-    lead: 'MK Textile Service provides independent textile inspection and factory assessment services in Pakistan.',
+    eyebrow: 'About MK Textile Service',
+    h1: 'Experience You Can Trust. Quality You Can Rely On.',
+    lead: 'MK Textile Service provides independent third-party inspection and factory assessment services in Pakistan, supporting international buyers, brands and businesses in maintaining product quality and production standards.',
   })}
   <section class="section">
     <div class="container detail">
       <div class="detail-main prose">
         <section class="reveal">
-          <h2>Company overview</h2>
-          <p>MK Textile Service provides independent textile inspection and factory assessment services in Pakistan. We support buyers and businesses through structured quality inspections, manufacturing assessments and clear, evidence-based reporting across apparel, fabrics, home textiles and related products.</p>
+          <h2>Who we are</h2>
+          <p>With 30+ years of industry experience, our approach is built on practical textile knowledge, hands-on quality assurance expertise and a strong understanding of manufacturing processes.</p>
+          <p>We understand that product quality is not just about identifying defects. It is about understanding specifications, monitoring production, evaluating materials and ensuring that products meet agreed requirements before shipment.</p>
+          <p>From garment and fabric inspections to home textiles, packaging, shipment checks and factory assessments, we provide professional, objective and reliable services tailored to each client&rsquo;s requirements.</p>
         </section>
         <section class="reveal">
-          <h2>Our independent approach</h2>
-          <p>Each inspection or assessment is carried out against criteria agreed with the client in advance: the product specification, the sampling level and the acceptance limits. Findings are recorded as observed and supported with photographs and measurements, so the report can be relied on when making a decision about an order or a supplier.</p>
+          <h2>Our commitment</h2>
+          <p>Our commitment is simple: independent inspections, honest findings, clear communication and dependable quality support.</p>
+          ${list(['Independent inspections', 'Honest findings', 'Clear communication', 'Dependable quality support'], 'checks checks--2')}
         </section>
         <section class="reveal">
-          <h2>Quality and impartiality commitment</h2>
-          ${list(['Inspection and assessment only, with no sourcing or buying role in the orders we inspect', 'Scope and acceptance criteria agreed before work starts', 'Findings reported factually, with supporting evidence', 'Client reports treated as confidential'], 'checks')}
+          <h2>Nationwide service coverage</h2>
+          <p>MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres. Our service coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country.</p>
+          ${coverageBlock}
         </section>
         <section class="reveal">
-          <h2>Service coverage</h2>
-          <p>Services are provided in Pakistan for international buyers and businesses, across four inspection categories and a separate factory assessment service.</p>
-          <div class="grid grid--2" style="margin-top:22px">
-            ${[...SERVICES, FACTORY].map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
+          <h2>Our services</h2>
+          <div class="grid grid--2">
+            ${ALL.map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
           </div>
         </section>
       </div>
       <aside class="detail-aside">
+        <div class="stat-card">
+          <p class="stat">30+</p>
+          <p class="stat-label">Years of Industry Experience</p>
+        </div>
         <div class="aside-card">
           <h2>Discuss your inspection requirements</h2>
-          <p>Send the product, service and preferred date through the enquiry form.</p>
+          <p>Send the product, service, location and preferred date through the enquiry form.</p>
           <a class="btn btn--primary btn--block" href="contact.html#enquiry">Discuss Your Requirements ${arrow}</a>
           <a class="btn btn--outline btn--block" href="sample-reports.html">${icon('report')}Request Sample Reports</a>
         </div>
       </aside>
     </div>
   </section>`,
-}));
+});
 
 /* ================= KNOWLEDGE CENTRE ================= */
-const TOPICS = [
-  ['Common garment defects and their classification', 'garment-inspection.html', 'Garment Inspection'],
-  ['Understanding AQL and inspection sampling', 'garment-inspection.html', 'Garment Inspection'],
-  ['The Four-Point fabric inspection system explained', 'fabric-material-inspection.html', 'Fabric &amp; Material Inspection'],
-  ['Shrinkage, spirality and dimensional stability', 'fabric-material-inspection.html', 'Fabric &amp; Material Inspection'],
-  ['Quality checkpoints for towels and bedding', 'home-textile-inspection.html', 'Home Textile Inspection'],
-  ['Common socks and hosiery defects', 'garment-inspection.html', 'Garment Inspection'],
-  ['Carton, barcode and assortment verification', 'packaging-shipment-inspection.html', 'Packaging &amp; Shipment Inspection'],
-  ['How a factory quality assessment works', 'factory-assessment.html', 'Factory Assessment'],
-];
 const FAQS = [
   ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, home textiles such as towels and bedding, and finished-goods packing and shipments.'],
   ['At which production stages can an inspection be carried out?', 'From the Pre-Production Check (PPC) through Initial Production Check (IPC), During Production Check (DUPRO), Final Random Inspection (FRI) and Pre-Shipment Inspection (PSI). 100% inspection, re-inspection and in-line quality checks are also available.'],
-  ['How are the sampling level and AQL decided?', 'The sampling level and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
-  ['What does an inspection report include?', 'An inspection summary, defect details and classification, photographic evidence, measurement findings where applicable, the result against the agreed criteria and corrective-action observations where required.'],
-  ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. Samples are shared privately after the request has been reviewed. Confidential client reports are never published.'],
-  ['Is a factory assessment a certification audit?', 'No. It is an independent evaluation against scope and criteria agreed with the client. It is not an accredited certification audit.'],
+  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. Standard rates apply within Karachi city; for other cities, applicable travel and accommodation expenses are charged additionally. The final quotation depends on inspection scope, location, duration and required manpower.'],
+  ['Where in Pakistan do you work?', 'Coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country. Assignments are subject to availability and confirmation.'],
+  ['How are the sampling plan and acceptance criteria decided?', 'The scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
+  ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. A suitable sample is shared privately after the request has been reviewed.'],
+  ['Is a factory assessment a certification?', 'No. It is an independent evaluation against a scope agreed with the client. No formal certificate is issued.'],
 ];
-const strip = (s) => s.replace(/&amp;/g, '&').replace(/&rsquo;/g, '’');
+const CATS = [...new Set(ARTICLES.map((a) => a.cat))];
 
-built.push(page({
+page({
   file: 'knowledge-centre.html',
   title: 'Knowledge Centre | Textile Inspection Guides &amp; FAQs | MK Textile Service',
-  description: 'Textile inspection guides and frequently asked questions on AQL sampling, fabric inspection, garment defects and factory assessment.',
+  description: 'Textile inspection guides and frequently asked questions on AQL sampling, fabric inspection, garment defects, container checks and factory assessment.',
   jsonld: {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -809,10 +998,23 @@ built.push(page({
     trail: [['Knowledge Centre']],
     eyebrow: 'Knowledge Centre',
     h1: 'Inspection guides and FAQs',
-    lead: 'Answers to common questions about textile inspection, and the technical guides we are preparing.',
+    lead: 'Short, practical guides on textile inspection, and answers to common questions.',
     iconName: 'book',
   })}
   <section class="section">
+    <div class="container">
+      ${CATS.map((cat) => `<div class="kc-group">
+        <h2 class="kc-cat reveal">${cat}</h2>
+        <div class="grid grid--3">
+          ${ARTICLES.filter((a) => a.cat === cat).map((a) => articleCard(a)).join('\n          ')}
+        </div>
+      </div>`).join('\n      ')}
+      <div class="reveal" style="margin-top:36px">
+        ${note('Educational content', 'These guides are general educational material. They are not a substitute for the full text of any standard or for buyer-specific inspection criteria.')}
+      </div>
+    </div>
+  </section>
+  <section class="section section--alt">
     <div class="container">
       <div class="section-head reveal">
         <p class="eyebrow">FAQs</p>
@@ -823,20 +1025,56 @@ built.push(page({
       </div>
     </div>
   </section>
-  <section class="section section--alt">
-    <div class="container">
-      <div class="section-head reveal">
-        <p class="eyebrow">Guides</p>
-        <h2>Technical guides in preparation</h2>
-        <p>These articles will be published here. Until then, the related service page covers the scope of each topic.</p>
-      </div>
-      <div class="grid grid--4">
-        ${TOPICS.map(([t, href, label]) => `<article class="card topic reveal"><span class="tag">Coming soon</span><h3>${t}</h3><a class="link-arrow" href="${href}">${label} ${arrow}</a></article>`).join('\n        ')}
-      </div>
+  ${defaultCta}`,
+});
+
+for (const a of ARTICLES) {
+  page({
+    file: a.file,
+    section: 'knowledge-centre.html',
+    title: `${a.title} | MK Textile Service`,
+    description: a.desc,
+    jsonld: {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: strip(a.title),
+      description: strip(a.desc),
+      author: { '@type': 'Organization', name: SITE },
+      publisher: { '@type': 'Organization', name: SITE },
+    },
+    body: `${pageHero({
+      trail: [['Knowledge Centre', 'knowledge-centre.html'], [a.title]],
+      eyebrow: a.cat,
+      h1: a.title,
+      lead: a.intro,
+    })}
+  <section class="section">
+    <div class="container detail">
+      <article class="detail-main">
+        ${a.parts.map(([h, items]) => block(h, list(items, 'checks'))).join('\n        ')}
+        <section class="reveal">
+          ${note('Keep in mind', a.close)}
+        </section>
+      </article>
+      <aside class="detail-aside">
+        <div class="aside-card">
+          <h2>Related service</h2>
+          <p>${a.related.name}: ${a.related.short}</p>
+          <a class="btn btn--primary btn--block" href="${a.related.file}">View Service ${arrow}</a>
+          <a class="btn btn--outline btn--block" href="${enquiry(a.related.key)}">Send an Enquiry</a>
+        </div>
+        <div class="aside-links">
+          <h2>More guides</h2>
+          <ul>
+            ${ARTICLES.filter((o) => o !== a).slice(0, 5).map((o) => `<li><a href="${o.file}">${o.title}${icon('arrow')}</a></li>`).join('\n            ')}
+          </ul>
+        </div>
+      </aside>
     </div>
   </section>
   ${defaultCta}`,
-}));
+  });
+}
 
 /* ================= CONTACT ================= */
 const ENQUIRY_TYPES = [
@@ -845,18 +1083,19 @@ const ENQUIRY_TYPES = [
   ['fabric', 'Fabric &amp; Material Inspection'],
   ['home-textile', 'Home Textile Inspection'],
   ['packaging', 'Packaging &amp; Shipment Inspection'],
+  ['container-loading', 'Container Loading Supervision'],
+  ['container-unloading', 'Container Unloading Inspection'],
   ['factory-assessment', 'Factory Assessment'],
   ['sample-report', 'Sample Report Request'],
 ];
-const CATEGORIES = ['Apparel &amp; Garments', 'Denim &amp; Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric', 'Trims &amp; Accessories', 'Home Textiles', 'Other'];
 
-built.push(page({
+page({
   file: 'contact.html',
   title: 'Contact MK Textile Service | Inspection Enquiry Form',
   description: 'Contact MK Textile Service about textile inspection or factory assessment in Pakistan. Send an enquiry or request a sample report.',
   body: `${pageHero({
-    trail: [['Contact']],
-    eyebrow: 'Contact',
+    trail: [['Contact Us']],
+    eyebrow: 'Contact Us',
     h1: 'Get in touch',
     lead: 'Use the enquiry form for inspection requests, factory assessments and sample reports. One form covers every type of enquiry.',
   })}
@@ -865,19 +1104,19 @@ built.push(page({
       <div class="contact-list">
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('mail')}</span>
-          <div><h3>Email</h3><p data-pending="email">Business email to be confirmed</p><a class="link-arrow" href="#enquiry">Use the enquiry form ${arrow}</a></div>
+          <div><h3>Email</h3><p><a href="mailto:${EMAIL}">${EMAIL}</a></p><a class="link-arrow" href="#enquiry">Use the enquiry form ${arrow}</a></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('chat')}</span>
-          <div><h3>WhatsApp</h3><p data-pending="whatsapp">WhatsApp number to be confirmed</p><a class="link-arrow" href="#enquiry" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
+          <div><h3>WhatsApp</h3><p data-pending="whatsapp">WhatsApp number to be added</p><a class="link-arrow" href="#enquiry" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('pin')}</span>
-          <div><h3>Location</h3><p>Pakistan. Business address to be confirmed.</p></div>
+          <div><h3>Service coverage</h3><p>Nationwide, Pakistan: ${CITIES.join(', ')} and other manufacturing locations.</p></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('globe')}</span>
-          <div><h3>Service coverage</h3><p>Inspection and factory assessment services in Pakistan for international buyers and businesses.</p></div>
+          <div><h3>Website</h3><p>mktextileservice.com</p></div>
         </div>
       </div>
 
@@ -907,17 +1146,17 @@ built.push(page({
               <span class="error">Please enter your country.</span>
             </div>
             <div class="field">
-              <label for="f-type">Enquiry Type <span class="req">*</span></label>
+              <label for="f-type">Enquiry Type / Inspection Category <span class="req">*</span></label>
               <select id="f-type" name="enquiryType" required>
                 ${ENQUIRY_TYPES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
               </select>
               <span class="error">Please choose an enquiry type.</span>
             </div>
             <div class="field">
-              <label for="f-category">Product Category <span class="opt">(optional)</span></label>
-              <select id="f-category" name="productCategory">
-                <option value="">Select a category</option>
-                ${CATEGORIES.map((c) => `<option>${c}</option>`).join('')}
+              <label for="f-stage">Inspection Stage <span class="opt">(if relevant)</span></label>
+              <select id="f-stage" name="inspectionStage">
+                <option value="">Not applicable / not sure</option>
+                ${STAGES.map(([code, name]) => `<option>${/^[A-Z]{3,5}$/.test(code) ? code + ' – ' : ''}${name}</option>`).join('')}
               </select>
             </div>
             <fieldset class="field field--full" data-report-field hidden>
@@ -927,13 +1166,21 @@ built.push(page({
               </div>
             </fieldset>
             <div class="field">
+              <label for="f-location">Factory / Inspection Location in Pakistan <span class="opt">(optional)</span></label>
+              <input id="f-location" name="location" type="text" placeholder="e.g. Karachi">
+            </div>
+            <div class="field">
+              <label for="f-qty">Product Quantity <span class="opt">(if known)</span></label>
+              <input id="f-qty" name="quantity" type="text" inputmode="numeric">
+            </div>
+            <div class="field">
               <label for="f-date">Preferred Inspection Date <span class="opt">(optional)</span></label>
               <input id="f-date" name="preferredDate" type="date">
             </div>
             <div class="field field--full">
-              <label for="f-message">Message <span class="req">*</span></label>
+              <label for="f-message">Inspection Requirements / Details <span class="req">*</span></label>
               <textarea id="f-message" name="message" required></textarea>
-              <span class="error">Please enter a message.</span>
+              <span class="error">Please describe your requirements.</span>
             </div>
             <div class="hp" aria-hidden="true">
               <label for="f-website">Leave this field empty</label>
@@ -941,7 +1188,7 @@ built.push(page({
             </div>
           </div>
           <div class="form-foot">
-            <p>Your details are used only to respond to this enquiry.</p>
+            <p>Your details are used only to respond to this enquiry. See our <a href="privacy-policy.html">Privacy Policy</a>.</p>
             <button class="btn btn--primary" type="submit">Send Enquiry ${arrow}</button>
           </div>
           <div class="form-status" role="status" aria-live="polite"></div>
@@ -949,17 +1196,50 @@ built.push(page({
       </div>
     </div>
   </section>`,
-}));
+});
+
+/* ================= LEGAL (drafts — pending legal review, kept out of search) ================= */
+const draftNote = `<div class="note note--warn reveal">${icon('info')}<div><h3>Draft</h3><p>This page is a working draft. The final wording is pending legal review and may change.</p></div></div>`;
+const legalPage = (file, h1, lead, parts) => page({
+  file,
+  noindex: true,
+  title: `${h1} | MK Textile Service`,
+  description: lead,
+  body: `${pageHero({ trail: [[h1]], eyebrow: 'Legal', h1, lead })}
+  <section class="section">
+    <div class="container legal prose">
+      ${draftNote}
+      ${parts.map(([h, html]) => `<section class="reveal"><h2>${h}</h2>${html}</section>`).join('\n      ')}
+    </div>
+  </section>`,
+});
+
+legalPage('privacy-policy.html', 'Privacy Policy', 'How MK Textile Service handles the information you send through this website.', [
+  ['Information we collect', `<p>When you send an enquiry or a sample-report request, we receive the details you enter in the form: your name, company name, email address, country, the service you are enquiring about, any inspection stage, location, quantity and preferred date you provide, and your message.</p>`],
+  ['How we use it', `<p>We use these details only to review your requirements, respond to your enquiry, prepare a quotation and share requested sample reports. We do not ask for information we do not need for these purposes.</p>`],
+  ['Who receives it', `<p>Enquiry details are received by MK Textile Service. Service providers that support the website, such as hosting and email, may process the data on our behalf. This website loads its typeface from Google Fonts.</p>`],
+  ['Cookies and analytics', `<p>This website does not currently use analytics or marketing cookies. If these are introduced, a cookie preference banner will be shown first so that you can accept or reject optional cookies.</p>`],
+  ['Retention and your requests', `<p>Enquiry records are kept only as long as needed to handle your enquiry and any resulting business relationship. You may ask us to correct or delete your details, where applicable.</p>`],
+  ['Contact', `<p>For privacy questions or requests, email <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`],
+]);
+
+legalPage('terms.html', 'Terms &amp; Conditions', 'Terms for using the MK Textile Service website and its enquiry form.', [
+  ['Website information', `<p>The content of this website is provided for general information about our services. We aim to keep it accurate, but it may change without notice. Knowledge Centre guides are educational and are not a substitute for the full text of any standard or for buyer-specific criteria.</p>`],
+  ['Enquiries and quotations', `<p>Sending an enquiry does not create a contract. Rates shown on this website are estimates, not fixed quotations. ${RATE_NOTE}</p>`],
+  ['Inspection scope', `<p>Each inspection or assessment is carried out against the scope, specifications, sampling plan and acceptance criteria agreed with the client for that assignment.</p>`],
+  ['Inspection disclaimer', `<p>This report represents the inspection findings observed at the time and location of inspection, based on the agreed scope, specifications and sampling requirements. The findings relate only to the items and conditions examined. An inspection based on sampling does not guarantee that every item in an inspected lot or shipment is free from defects. The report should be considered together with the agreed inspection criteria and any limitations recorded during the inspection.</p>`],
+  ['Confidentiality', `<p>Client inspection and assessment reports are confidential. Sample reports are shared privately on request and are not published on this website.</p>`],
+  ['Intellectual property', `<p>The content and design of this website belong to MK Textile Service and may not be reused without permission.</p>`],
+  ['Contact', `<p>Questions about these terms can be sent to <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`],
+]);
 
 /* ---------- favicon, robots, sitemap ---------- */
 writeFileSync(join(OUT, 'assets/img/favicon.svg'),
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#0E2A52"/><circle cx="24" cy="24" r="19.5" fill="none" stroke="#16B6C9" stroke-width="1.6"/><text x="24" y="30" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="800" fill="#fff">MK</text></svg>\n`);
 
-writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n${SITE_URL ? `\nSitemap: ${SITE_URL}/sitemap.xml\n` : ''}`);
+writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 
-if (SITE_URL) {
-  const urls = built.map((f) => `  <url><loc>${SITE_URL}/${f === 'index.html' ? '' : f}</loc></url>`).join('\n');
-  writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
-}
+const urls = built.map((f) => `  <url><loc>${SITE_URL}/${f === 'index.html' ? '' : f.replace(/\.html$/, '')}</loc></url>`).join('\n');
+writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 
-console.log(`Built ${built.length} pages:\n  ${built.join('\n  ')}`);
+console.log(`Built ${built.length} indexed pages + 2 draft legal pages.`);

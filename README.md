@@ -6,7 +6,7 @@ Plain HTML, one stylesheet, one script. No framework and no build step is needed
 
 ## Structure
 
-- `*.html` — the 11 generated pages
+- `*.html` — the 25 generated pages (services, Knowledge Centre guides, draft legal pages)
 - `assets/css/style.css` — styles
 - `assets/js/main.js` — navigation, enquiry form, sample-report selection
 - `build.mjs` — generator that writes the pages (header, footer and navigation live here once)
@@ -26,11 +26,13 @@ Do not edit the generated `.html` files by hand; a rebuild overwrites them.
 
 Placeholders are used until these are confirmed:
 
-- Business email, WhatsApp number and enquiry backend URL — `CONFIG` at the top of `assets/js/main.js`
-- Domain — `SITE_URL` in `build.mjs` (enables canonical URLs and `sitemap.xml`)
-- Business address and approved logo
+- WhatsApp number and enquiry backend URL — `CONFIG` at the top of `assets/js/main.js`
+- Final company logo and genuine inspection photographs
+- Legal review of the Privacy Policy and Terms pages (drafts, marked `noindex`)
 
-The enquiry form validates input but does not send anything until `formEndpoint` or `email` is set.
+Until the PHP/MySQL enquiry backend exists, the enquiry form validates input and then opens the visitor's email app addressed to info@mktextileservice.com. Nothing is stored.
+
+Not built yet (later phases of the specification): enquiry database and admin panel, seven-language versions, cookie preference banner.
 
 ## Deploy
 
