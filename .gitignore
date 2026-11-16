@@ -1,0 +1,10 @@
+# Client working documents and design mockups — keep out of the public repo
+*.docx
+WhatsApp Image*.jpeg
+
+# Local tooling
+.claude/
+node_modules/
+.vercel/
+.DS_Store
+Thumbs.db
