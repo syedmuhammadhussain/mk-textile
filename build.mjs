@@ -60,38 +60,48 @@ const SERVICES = [
   { key: 'garment', file: 'garment-inspection.html', icon: 'shirt', name: 'Garment Inspection', short: 'Apparel, denim, knitwear, sportswear, socks &amp; hosiery.', rate: 200 },
   { key: 'fabric', file: 'fabric-material-inspection.html', icon: 'layers', name: 'Fabric &amp; Material Inspection', short: 'Fabric rolls, GSM, width, shade and shrinkage.', rate: 200 },
   { key: 'home-textile', file: 'home-textile-inspection.html', icon: 'bed', name: 'Home Textile Inspection', short: 'Towels, bedding, quilts and kitchen textiles.', rate: 200 },
-  { key: 'packaging', file: 'packaging-shipment-inspection.html', icon: 'box', name: 'Packaging &amp; Shipment Inspection', short: 'Packing, labels, cartons, quantities and container condition.', rate: 200 },
+  { key: 'container', file: 'container-loading-unloading-inspection.html', icon: 'truck', name: 'Container Loading &amp; Unloading Inspection', short: 'Container condition, loading and unloading checks, cartons and seals.', rate: 200 },
 ];
-const CONTAINER = [
-  { key: 'container-loading', file: 'container-loading-supervision.html', icon: 'truck', name: 'Container Loading Supervision', short: 'Container condition, loading sequence, stacking and seal record.', rate: 200 },
-  { key: 'container-unloading', file: 'container-unloading-inspection.html', icon: 'unload', name: 'Container Unloading Inspection', short: 'Seal, internal condition, carton damage and discrepancies.', rate: 200 },
-];
-const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.', rate: 275 };
-const ALL = [...SERVICES, ...CONTAINER, FACTORY];
+const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.', rate: 300 };
+const ALL = [...SERVICES, FACTORY];
 
-const RATE_NOTE = 'Final quotation depends on inspection scope, duration and required manpower.';
+const CITIES = ['Karachi', 'Lahore', 'Faisalabad', 'Sialkot', 'Multan', 'Islamabad', 'Rawalpindi'];
+const KARACHI_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For cities apart from Karachi charges may vary.';
+const RATE_NOTE = `${KARACHI_NOTE} Final quotation depends on inspection scope, location, duration and required manpower.`;
+const COVERAGE_TEXT = 'MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres. Our service coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country.';
 
 const REPORTS = [
-  ['inline-garment', 'In-Line Garment Inspection Report', 'Quality during ongoing production'],
-  ['final-garment', 'Final Garment Inspection Report', 'Completed goods against agreed criteria'],
-  ['dupro', 'DUPRO Inspection Report', 'During-production check of bulk quality'],
+  ['sample-picking', 'Sample Picking Report', 'Samples selected and collected as agreed'],
+  ['pre-production', 'Pre-Production Report', 'Materials, specifications and readiness'],
+  ['initial-production', 'Initial Production Report', 'First production output and process setup'],
+  ['during-production', 'During Production Report', 'Bulk production quality and defects'],
+  ['final-random', 'Final Random Inspection Report', 'Completed goods against agreed criteria'],
+  ['production-monitoring', 'Production Monitoring Report', 'Quality trends and corrective actions'],
+  ['defect-sorting', '100% Inspection (Defect Sorting) Report', 'Every unit checked, defects separated'],
   ['fabric', 'Fabric Inspection Report', 'Roll-wise findings and defect records'],
   ['home-textile', 'Home Textile Inspection Report', 'Product-wise findings and measurements'],
-  ['packaging-shipment', 'Packaging &amp; Shipment Inspection Report', 'Packing, cartons, labels and quantity'],
-  ['container-loading', 'Container Loading Supervision Report', 'Container condition, loading and seal record'],
-  ['container-unloading', 'Container Unloading Inspection Report', 'Seal, condition on opening and damage'],
+  ['container', 'Container Loading &amp; Unloading Inspection Report', 'Container condition, cartons and seals'],
   ['factory-assessment', 'Factory Assessment / Quality Audit Report', 'Capability, quality systems and CAPA'],
 ];
 
+// The seven garment inspection categories, in the approved order.
 const STAGES = [
-  ['PPC', 'Pre-Production Check', 'Review materials, specifications, samples, production readiness and quality requirements before bulk production.'],
-  ['IPC', 'Initial Production Check', 'Check initial production output, workmanship, measurements and process setup.'],
-  ['DUPRO', 'During Production Check', 'Monitor bulk production quality, defects, measurements and corrective actions.'],
-  ['FRI', 'Final Random Inspection', 'Evaluate a selected sample of completed goods against agreed inspection criteria.'],
-  ['PSI', 'Pre-Shipment Inspection', 'Verify shipment readiness, product quality, packing and shipping requirements.'],
-  ['100%', '100% Inspection', 'Inspect every unit within the agreed inspection scope.'],
-  ['RE', 'Re-Inspection', 'Verify corrections after an earlier inspection or rejection.'],
-  ['IN-LINE', 'In-Line Quality Check', 'Monitor workmanship and quality during ongoing production.'],
+  ['Sample Picking', 'Select and collect samples from production as agreed with the client, for approval, review or testing.'],
+  ['Pre-Production', 'Review materials, specifications, samples, production readiness and quality requirements before bulk production.'],
+  ['Initial Production', 'Check initial production output, workmanship, measurements and process setup.'],
+  ['During Production', 'Check bulk production quality, defects, measurements and corrective actions.'],
+  ['Final Random Inspection', 'Evaluate a selected sample of completed goods against agreed inspection criteria.'],
+  ['Production Monitoring', 'Continuous or scheduled monitoring of workmanship, quality and production progress throughout manufacturing.'],
+  ['100% Inspection (Defect Sorting)', 'Inspect every unit within the agreed scope and separate defective pieces.'],
+];
+const MONITORING = [
+  'Monitor production quality at different manufacturing stages.',
+  'Check workmanship, stitching, construction and measurements.',
+  'Identify recurring defects and quality trends.',
+  'Review production output and quality performance.',
+  'Monitor corrective actions taken by the factory.',
+  'Highlight quality risks and production issues.',
+  'Provide inspection findings, photographs and monitoring reports.',
 ];
 
 const enquiry = (service, reports) =>
@@ -120,8 +130,6 @@ function header(active, section) {
           <button class="sub-toggle" type="button" aria-expanded="false" aria-label="Show inspection services">${icon('chevron')}</button>
           <ul class="sub">
             ${SERVICES.map(subLink).join('\n            ')}
-            <li class="sub-label">Container services</li>
-            ${CONTAINER.map(subLink).join('\n            ')}
             <li><a class="sub-all" href="inspection-services.html">All services and estimated rates ${arrow}</a></li>
           </ul>
         </li>`;
@@ -328,7 +336,7 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
         <div class="aside-card">
           <p class="rate-label">Estimated standard fee</p>
           <p class="rate">${price(svc)}</p>
-          <p>Estimated rate per man-day. <a href="inspection-services.html#rates">Rate details</a></p>
+          <p>${KARACHI_NOTE} <a href="inspection-services.html#rates">Rate details</a></p>
           <a class="btn btn--primary btn--block" href="${enquiry(svc.key)}">${requestLabel} ${arrow}</a>
           <a class="btn btn--outline btn--block" href="${enquiry('sample-report', sampleReports)}">${icon('report')}${sampleLabel}</a>
           <a class="btn btn--outline btn--block" href="contact.html">Contact Us</a>
@@ -366,6 +374,26 @@ const ARTICLES = [
       ['Measurements, decoration and finishing', ['Incorrect measurements', 'Print and embroidery defects', 'Wrong or missing labels and accessories', 'Pressing and finishing faults']],
     ],
     close: 'Whether a defect is acceptable depends on the buyer&rsquo;s requirements. Each finding is evaluated against the agreed specification and defect classification.',
+  },
+  {
+    file: 'guide-production-monitoring.html', cat: 'Garments', related: SERVICES[0],
+    title: 'Production Monitoring in Garment Manufacturing',
+    desc: 'How scheduled or continuous production monitoring follows workmanship, production progress, recurring defects and corrective actions during garment manufacturing.',
+    intro: 'Production Monitoring involves continuous or scheduled monitoring of garment production to evaluate workmanship, product quality, production progress and compliance with approved specifications throughout the manufacturing process.',
+    parts: [
+      ['What is monitored', MONITORING],
+      ['Why it helps', ['Quality problems are identified early.', 'Corrective action can be taken while production is still running.', 'The risk of defects continuing through bulk production is reduced.']],
+      ['How it is arranged', ['Scheduled visits or ongoing follow-up during the production period.', 'Frequency and checkpoints follow the agreed scope.', 'Findings are reported with photographs after each visit.']],
+    ],
+    close: 'Production Monitoring complements, and does not replace, a Final Random Inspection of the finished goods.',
+  },
+  {
+    file: 'guide-garment-inspection-categories.html', cat: 'Garments', related: SERVICES[0],
+    title: 'Garment Inspection Categories Explained',
+    desc: 'The seven garment inspection categories, from Sample Picking and Pre-Production to Final Random Inspection, Production Monitoring and 100% Inspection (Defect Sorting).',
+    intro: 'Garment inspection can be arranged at different points of an order. Each category answers a different question about the goods.',
+    parts: [['The seven categories', STAGES.map(([name, text]) => `<strong>${name}:</strong> ${text}`)]],
+    close: 'An order can use one category or several. The scope, sampling plan and acceptance criteria are agreed with the client for each inspection.',
   },
   {
     file: 'guide-four-point-fabric-inspection.html', cat: 'Fabrics', related: SERVICES[1],
@@ -426,19 +454,7 @@ const ARTICLES = [
     close: 'Findings are evaluated against the buyer&rsquo;s specification and the agreed defect classification.',
   },
   {
-    file: 'guide-packaging-carton-inspection.html', cat: 'Packaging &amp; Shipment', related: SERVICES[3],
-    title: 'Packaging and Carton Inspection',
-    desc: 'What is checked during packaging and carton inspection: folding, polybags, assortment, labels, barcodes, shipping marks, cartons and quantity.',
-    intro: 'Packing errors are easy to prevent before shipment and costly to correct afterwards. A packaging inspection checks the order from the single unit up to the export carton.',
-    parts: [
-      ['Unit and inner packing', ['Folding', 'Polybag and inner packing', 'Barcode, product and care labels', 'Hangtags']],
-      ['Assortment', ['Assortment', 'Size ratios']],
-      ['Cartons and documents', ['Shipping marks', 'Carton dimensions and condition', 'Quantity', 'Packing list', 'Sealing and protection']],
-    ],
-    close: 'Checks are made against the buyer&rsquo;s packing instructions and the purchase order.',
-  },
-  {
-    file: 'guide-container-loading-unloading.html', cat: 'Packaging &amp; Shipment', related: CONTAINER[0],
+    file: 'guide-container-loading-unloading.html', cat: 'Container Loading &amp; Unloading', related: SERVICES[3],
     title: 'Container Loading and Unloading Inspection Checklist',
     desc: 'A checklist for container loading and unloading inspection: container condition, loading sequence, stacking, carton damage and photographs.',
     intro: 'Loading and unloading are the two points where the condition of a shipment can be recorded. The checks differ slightly at each end.',
@@ -455,7 +471,7 @@ const ARTICLES = [
     desc: 'What a factory assessment reviews, from capacity and machinery to quality procedures, CAPA and traceability, and how the assessment is carried out.',
     intro: 'A factory assessment gives a buyer a structured view of a manufacturer before or during a business relationship.',
     parts: [
-      ['What is reviewed', ['Factory profile and capacity', 'Machinery and workflow', 'Quality procedures', 'Incoming materials', 'In-line and final checks', 'Testing facilities', 'Defects and CAPA', 'Documents and traceability', 'Production readiness']],
+      ['What is reviewed', ['Factory profile and capacity', 'Machinery and workflow', 'Quality procedures', 'Incoming materials', 'Production quality checks', 'Testing facilities', 'Defects and CAPA', 'Documents and traceability', 'Production readiness']],
       ['How it works', ['Define the scope with the client.', 'Visit the factory and review facilities, processes and records.', 'Report findings, gaps, risks and recommendations.']],
     ],
     close: 'A factory assessment is an independent evaluation against an agreed scope. It is not a certification.',
@@ -465,7 +481,14 @@ const ARTICLES = [
 /* ================= HOME ================= */
 const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Towels', 'Bedding', 'Quilts', 'Kitchen Textiles'];
 const tickerList = (hidden) => `<ul${hidden ? ' aria-hidden="true"' : ''}>${tickerItems.map((t) => `<li>${t}</li>`).join('')}</ul>`;
-const articleCard = (a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
+const guide = (file) => ARTICLES.find((a) => a.file === file);
+const coverageBlock = `<ul class="cities">${CITIES.map((c) => `<li>${icon('pin')}${c}</li>`).join('')}<li class="more">+ other manufacturing locations</li></ul>`;
+const HIGHLIGHTS = [
+  ['shirt', 'Garment Inspection', 'Quality checks from sample picking and production stages through final random inspection and defect sorting.'],
+  ['layers', 'Fabric Inspection', 'Fabric quality, appearance, shade, construction and material verification.'],
+  ['factory', 'Factory Assessment', 'Review of factory capability, facilities, quality systems and manufacturing processes.'],
+];
+const articleCard =(a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
 
 page({
   file: 'index.html',
@@ -494,30 +517,19 @@ page({
       <div>
         <p class="eyebrow eyebrow--light">Independent third-party inspection</p>
         <h1>Textile Inspection Services <span>in Pakistan</span></h1>
-        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards in Pakistan.</p>
+        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards across Pakistan.</p>
         <div class="btn-row">
           <a class="btn btn--teal" href="inspection-services.html">Our Services ${arrow}</a>
           <a class="btn btn--ghost" href="contact.html">Contact Us</a>
         </div>
         <ul class="hero-points">
           <li>${icon('check')}30+ years of industry experience</li>
-          <li>${icon('check')}Based in Karachi, Pakistan</li>
-          <li>${icon('check')}Rates from US$200 / Man-Day</li>
+          <li>${icon('check')}Nationwide coverage across Pakistan</li>
         </ul>
       </div>
-      <div class="hero-card">
-        <div class="hero-card-head">
-          <div>
-            <h2>Inspection coverage</h2>
-            <p>From first materials to shipment</p>
-          </div>
-          ${icon('clipboard')}
-        </div>
-        <ul class="stage-list">
-          ${STAGES.slice(0, 5).map(([code, name]) => `<li><span class="code">${code}</span>${name}${icon('check')}</li>`).join('\n          ')}
-        </ul>
-        <p class="hero-card-foot">Plus 100% inspection, re-inspection and in-line quality checks.</p>
-      </div>
+      <ul class="hero-highlights" aria-label="Key services">
+        ${HIGHLIGHTS.map(([ic, h, p]) => `<li><span class="hl-icon">${icon(ic)}</span><div><h2>${h}</h2><p>${p}</p></div></li>`).join('\n        ')}
+      </ul>
     </div>
   </section>
 
@@ -556,7 +568,6 @@ page({
           <span class="link-arrow">View details ${arrow}</span>
         </a>`).join('\n        ')}
       </div>
-      <p class="after-grid reveal">Also available: <a href="${CONTAINER[0].file}">Container Loading Supervision</a> and <a href="${CONTAINER[1].file}">Container Unloading Inspection</a>.</p>
     </div>
   </section>
 
@@ -607,6 +618,22 @@ page({
     </div>
   </section>
 
+  <section class="section section--alt">
+    <div class="container intro">
+      <div class="reveal">
+        <p class="eyebrow">Nationwide Service Coverage</p>
+        <h2>Across Pakistan&rsquo;s textile and manufacturing centres</h2>
+        <p class="lead">MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres.</p>
+        ${coverageBlock}
+      </div>
+      <div class="panel reveal" style="--d:100ms">
+        <h3>Rates and locations</h3>
+        <p class="muted">${KARACHI_NOTE} Contact us to discuss your inspection requirements and location.</p>
+        <a class="link-arrow" href="inspection-services.html#rates">View estimated rates ${arrow}</a>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <div class="section-head reveal">
@@ -614,7 +641,7 @@ page({
         <h2>Practical inspection guides</h2>
       </div>
       <div class="grid grid--3">
-        ${[ARTICLES[0], ARTICLES[2], ARTICLES[8]].map((a, i) => articleCard(a, i * 70)).join('\n        ')}
+        ${['guide-production-monitoring.html', 'guide-four-point-fabric-inspection.html', 'guide-container-loading-unloading.html'].map((f, i) => articleCard(guide(f), i * 70)).join('\n        ')}
       </div>
       <p class="after-grid reveal"><a class="link-arrow" href="knowledge-centre.html">All guides ${arrow}</a></p>
     </div>
@@ -644,21 +671,21 @@ const OVERVIEW = [
   },
   {
     svc: SERVICES[3],
-    intro: 'Verification of packing, assortment, labels, cartons, quantities, shipping marks and container condition.',
-    coverage: ['Inner packing', 'Labels &amp; barcodes', 'Cartons', 'Container condition'],
-    activities: ['Folding, polybag and inner packing', 'Assortment and size ratios', 'Shipping marks, carton condition and quantity', 'Container condition checks'],
+    intro: 'One service covering the container and cartons at loading and at unloading, recorded with photographs and seal details.',
+    coverage: ['Container loading', 'Container unloading', 'Cartons &amp; quantities', 'Seals'],
+    activities: ['Container identity and condition', 'Loading sequence, handling and stacking', 'Wet, crushed, torn or shifted cartons on unloading', 'Final loading or unloading record'],
   },
 ];
 
 page({
   file: 'inspection-services.html',
   title: 'Inspection Services in Pakistan | Scope and Estimated Rates | MK Textile Service',
-  description: 'Third-party garment, fabric, home textile, packaging and container inspection services in Pakistan, with estimated man-day rates.',
+  description: 'Third-party garment, fabric and material, home textile, and container loading and unloading inspection services in Pakistan, with estimated man-day rates.',
   body: `${pageHero({
     trail: [['Inspection Services']],
     eyebrow: 'Inspection Services',
     h1: 'Inspection Services in Pakistan',
-    lead: 'Four inspection categories and two container services, covering textile products from incoming material to the loaded container. Open a service to review its scope and checkpoints.',
+    lead: 'Four inspection services covering textile products from incoming material to container loading and unloading. Open a service to review its scope and checkpoints.',
     buttons: `<a class="btn btn--outline" href="#rates">Estimated rates</a>`,
   })}
   <section class="section">
@@ -676,25 +703,7 @@ page({
       </div>
     </div>
   </section>
-  <section class="section section--alt">
-    <div class="container">
-      <div class="section-head reveal">
-        <p class="eyebrow">Container Services</p>
-        <h2>Loading supervision and unloading inspection</h2>
-        <p>Two separate services for the start and end of the shipment journey.</p>
-      </div>
-      <div class="grid grid--2">
-        ${CONTAINER.map((s, i) => `<a class="card reveal"${i ? ' style="--d:80ms"' : ''} href="${s.file}">
-          <span class="icon-tile">${icon(s.icon)}</span>
-          <h3>${s.name}</h3>
-          <p>${s.short}</p>
-          <p class="card-rate">${price(s)}</p>
-          <span class="link-arrow">View details ${arrow}</span>
-        </a>`).join('\n        ')}
-      </div>
-    </div>
-  </section>
-  <section class="section" id="rates">
+  <section class="section section--alt" id="rates">
     <div class="container">
       <div class="section-head reveal">
         <p class="eyebrow">Estimated Rates</p>
@@ -724,8 +733,8 @@ page({
 /* ================= GARMENT ================= */
 servicePage({
   svc: SERVICES[0],
-  title: 'Garment Inspection in Pakistan | PPC, DUPRO, FRI, PSI | MK Textile Service',
-  description: 'Third-party garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery, from pre-production check to pre-shipment inspection.',
+  title: 'Garment Inspection in Pakistan | Production Monitoring &amp; Final Random Inspection | MK Textile Service',
+  description: 'Third-party garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery: sample picking, production checks, production monitoring, final random inspection and defect sorting.',
   eyebrow: 'Inspection Services',
   intro: 'Independent garment inspection services designed to evaluate product quality, workmanship, measurements, appearance and packing at different production stages.',
   requestLabel: 'Request Inspection Service',
@@ -733,10 +742,13 @@ servicePage({
   sampleReports: 'final-garment',
   sections: [
     block('Product coverage', list(['Apparel and garments', 'Denim and woven garments', 'Knitwear', 'Sportswear', 'Socks and hosiery', 'Children&rsquo;s wear'], 'chips')),
-    block('Inspection stages', `<ul class="rows">
-            ${STAGES.map(([code, name, text]) => `<li><strong><span class="code">${code}</span>${name}</strong><span>${text}</span></li>`).join('\n            ')}
-          </ul>`, 'Inspection can be arranged at one stage or at several stages of the same order.'),
-    block('Checkpoints', list(['Product specifications and approved samples', 'Fabric and material condition', 'Workmanship and stitching', 'Measurements', 'Construction and assembly', 'Print and embroidery', 'Labels and branding', 'Colour and shade consistency', 'Functional and appearance checks', 'Defect classification', 'Packing and presentation where applicable', 'Photographic evidence'], 'checks checks--2')),
+    block('Inspection categories', `<ul class="rows">
+            ${STAGES.map(([name, text], i) => `<li><strong><span class="code">0${i + 1}</span>${name}</strong><span>${text}</span></li>`).join('\n            ')}
+          </ul>`, 'Inspection can be arranged in one category or in several for the same order.'),
+    block('Production Monitoring', `<p>Production Monitoring involves continuous or scheduled monitoring of garment production to evaluate workmanship, product quality, production progress and compliance with approved specifications throughout the manufacturing process.</p>
+          ${list(MONITORING, 'checks')}
+          <p class="muted" style="margin-top:18px">Purpose: identify quality problems early, support timely corrective action and reduce the risk of defects continuing through bulk production. This service may involve scheduled visits and ongoing follow-up during the production period according to the agreed scope.</p>`),
+    block('Checkpoints', list(['Product specifications and approved samples', 'Fabric and material condition', 'Workmanship and stitching', 'Measurements', 'Construction and assembly', 'Print and embroidery', 'Trims and accessories', 'Labels and branding', 'Colour and shade consistency', 'Functional and appearance checks', 'Defect classification', 'Packing and presentation where applicable', 'Photographic evidence'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Scope, sampling and acceptance criteria', 'The inspection scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.')}
         </section>`,
@@ -754,8 +766,8 @@ servicePage({
   sampleLabel: 'Request Sample Fabric Inspection Report',
   sampleReports: 'fabric',
   sections: [
-    block('Material coverage', list(['Woven fabric', 'Knitted fabric', 'Denim', 'Other textile materials'], 'chips')),
-    block('What is inspected', list(['Fabric roll inspection', 'Four-Point system where applicable', 'Construction and appearance', 'GSM', 'Width', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Defect mapping', 'Roll and lot identification', 'Roll length'], 'checks checks--2')),
+    block('Material coverage', list(['Woven fabric', 'Knitted fabric', 'Denim', 'Other textile materials', 'Trims and accessories'], 'chips')),
+    block('What is inspected', list(['Fabric roll inspection', 'Four-Point system where applicable', 'Construction and appearance', 'GSM', 'Width', 'Shade and colour variation', 'Shrinkage and dimensional stability', 'Knitted fabric spirality', 'Defect mapping', 'Roll and lot identification', 'Roll length', 'Incoming trims and accessories'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Method and acceptance criteria', 'The applicable inspection method and acceptance criteria depend on the buyer&rsquo;s requirements and are confirmed before the inspection.')}
         </section>`,
@@ -773,7 +785,7 @@ servicePage({
   sampleLabel: 'Request Sample Home Textile Report',
   sampleReports: 'home-textile',
   sections: [
-    block('Product coverage', list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Upholstery', 'Quilts', 'Kitchen textiles', 'Related products'], 'chips')),
+    block('Product coverage', list(['Towels and bathrobes', 'Bedsheets', 'Pillowcases', 'Duvet covers', 'Curtains', 'Upholstery', 'Blankets', 'Quilts', 'Kitchen textiles', 'Related products'], 'chips')),
     block('Checkpoints', list(['Fabric appearance and construction', 'GSM and dimensions', 'Stitching and seams', 'Shade', 'Print and embroidery', 'Shrinkage and absorbency where specified', 'Labels', 'Folding and packaging'], 'checks checks--2')),
     `<section class="reveal">
           ${note('Product-specific checklists', 'Each home textile product is inspected against a checklist built for that product and the buyer&rsquo;s specification.')}
@@ -781,57 +793,22 @@ servicePage({
   ],
 });
 
-/* ================= PACKAGING ================= */
+/* ================= CONTAINER LOADING & UNLOADING ================= */
 servicePage({
   svc: SERVICES[3],
-  title: 'Packaging &amp; Shipment Inspection in Pakistan | MK Textile Service',
-  description: 'Packaging and shipment inspection in Pakistan: folding, inner packing, assortment, labels, barcodes, shipping marks, cartons, quantity and container condition.',
+  title: 'Container Loading &amp; Unloading Inspection in Pakistan | MK Textile Service',
+  description: 'Container loading and unloading inspection in Pakistan: container condition, carton quantities, loading sequence and stacking, damage on unloading, photographs and seal records.',
   eyebrow: 'Inspection Services',
-  intro: 'Inspection of finished-goods packing and shipment preparation to help verify order presentation, quantity, labelling and loading requirements.',
-  requestLabel: 'Request Packaging / Shipment Inspection',
-  sampleLabel: 'Request Sample Shipment Report',
-  sampleReports: 'packaging-shipment',
+  intro: 'One service covering the container and cartons at loading and at unloading, recording the condition of the container, the goods and how they were handled.',
+  requestLabel: 'Request Container Inspection',
+  sampleLabel: 'Request Sample Container Report',
+  sampleReports: 'container',
   sections: [
-    block('Packing and shipment checks', list(['Folding and presentation', 'Polybag and inner packing', 'Assortment and size ratios', 'Labels, care labels, barcode and hangtags', 'Shipping marks and carton markings', 'Carton dimensions and condition', 'Quantity', 'Packing list', 'Shipment preparation'], 'checks checks--2')),
-    block('Container condition checks', list(['Container identity', 'Cleanliness and dryness', 'Visible damage', 'Holes and leakage', 'Odour and contamination', 'Floor, walls and roof', 'Doors and locking arrangement', 'Seal details where applicable'], 'checks checks--2')),
-    block('Related container services', `<div class="grid grid--2">
-            ${CONTAINER.map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
-          </div>`),
-  ],
-});
-
-/* ================= CONTAINER LOADING ================= */
-servicePage({
-  svc: CONTAINER[0],
-  title: 'Container Loading Supervision in Pakistan | MK Textile Service',
-  description: 'Container loading supervision in Pakistan: container condition before loading, carton quantities, loading sequence, stacking, photographs and seal record.',
-  eyebrow: 'Container Services',
-  intro: 'On-site supervision of container loading, recording the condition of the container, the goods loaded and how they were loaded.',
-  requestLabel: 'Request Loading Supervision',
-  sampleLabel: 'Request Sample Loading Report',
-  sampleReports: 'container-loading',
-  sections: [
-    block('What is supervised', list(['Container identity and condition before loading', 'Carton identification and quantities as agreed', 'Loading sequence', 'Handling and stacking', 'Load arrangement', 'Visible carton damage and discrepancies', 'Photographs', 'Seal details', 'Final loading record'], 'checks checks--2')),
+    block('Container condition', list(['Container identity and condition before loading or unloading', 'Cleanliness and dryness', 'Visible damage', 'Holes and leakage', 'Odour and contamination', 'Floor, walls, roof, doors and locking arrangement', 'Seal details where applicable'], 'checks checks--2')),
+    block('Loading checks', list(['Carton identification and quantities as agreed', 'Loading sequence', 'Handling and stacking', 'Load arrangement', 'Visible carton damage and discrepancies', 'Photographs', 'Seal details', 'Final loading record'], 'checks checks--2')),
+    block('Unloading checks', list(['Container identity and seal', 'Condition before opening', 'Internal condition', 'Unloading sequence and handling', 'Wet, crushed, torn or shifted cartons', 'Quantity discrepancies where agreed', 'Visible damage', 'Photographs', 'Final unloading report'], 'checks checks--2')),
     `<section class="reveal">
-          ${note('Scope of the service', 'Loading supervision records what was observed at the time of loading. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
-        </section>`,
-  ],
-});
-
-/* ================= CONTAINER UNLOADING ================= */
-servicePage({
-  svc: CONTAINER[1],
-  title: 'Container Unloading Inspection in Pakistan | MK Textile Service',
-  description: 'Container unloading inspection in Pakistan: seal and container condition, unloading sequence, wet or damaged cartons, quantity discrepancies and photographs.',
-  eyebrow: 'Container Services',
-  intro: 'Inspection during container unloading, recording the condition of the container and cartons on arrival.',
-  requestLabel: 'Request Unloading Inspection',
-  sampleLabel: 'Request Sample Unloading Report',
-  sampleReports: 'container-unloading',
-  sections: [
-    block('What is inspected', list(['Container identity and seal', 'Condition before opening', 'Internal condition', 'Unloading sequence and handling', 'Wet, crushed, torn or shifted cartons', 'Quantity discrepancies where agreed', 'Visible damage', 'Photographs', 'Final unloading report'], 'checks checks--2')),
-    `<section class="reveal">
-          ${note('Scope of the service', 'An unloading inspection records what was observed at the time of unloading. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
+          ${note('Scope of the service', 'A container loading or unloading inspection records what was observed at the time. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
         </section>`,
   ],
 });
@@ -848,7 +825,7 @@ servicePage({
   sampleLabel: 'Request Sample Factory Assessment Report',
   sampleReports: 'factory-assessment',
   sections: [
-    block('Assessment scope', list(['Factory profile', 'Infrastructure', 'Production capability', 'Machinery and facilities', 'Quality management system', 'Production processes', 'Incoming material control', 'In-line and final quality control', 'Testing facilities and records', 'Documentation', 'Defect management', 'CAPA', 'Production readiness', 'Compliance and workplace checks within the agreed scope'], 'checks checks--2')),
+    block('Assessment scope', list(['Factory profile', 'Infrastructure', 'Production capability', 'Machinery and facilities', 'Quality management system', 'Production processes', 'Incoming material control', 'Production quality controls', 'Testing facilities and records', 'Documentation', 'Defect management', 'CAPA', 'Production readiness', 'Compliance and workplace checks within the agreed scope'], 'checks checks--2')),
     block('Assessment workflow', `<ol class="steps steps--3">
             <li><h3>Enquiry</h3><p>You send the factory details and what you need assessed.</p></li>
             <li><h3>Confirm scope</h3><p>The assessment scope and criteria are agreed.</p></li>
@@ -932,12 +909,17 @@ page({
           <h2>Who we are</h2>
           <p>With 30+ years of industry experience, our approach is built on practical textile knowledge, hands-on quality assurance expertise and a strong understanding of manufacturing processes.</p>
           <p>We understand that product quality is not just about identifying defects. It is about understanding specifications, monitoring production, evaluating materials and ensuring that products meet agreed requirements before shipment.</p>
-          <p>From garment and fabric inspections to home textiles, packaging, shipment checks and factory assessments, we provide professional, objective and reliable services tailored to each client&rsquo;s requirements.</p>
+          <p>From garment and fabric inspections to home textiles, container loading and unloading inspections, and factory assessments, we provide professional, objective and reliable services tailored to each client&rsquo;s requirements.</p>
         </section>
         <section class="reveal">
           <h2>Our commitment</h2>
           <p>Our commitment is simple: independent inspections, honest findings, clear communication and dependable quality support.</p>
           ${list(['Independent inspections', 'Honest findings', 'Clear communication', 'Dependable quality support'], 'checks checks--2')}
+        </section>
+        <section class="reveal">
+          <h2>Nationwide service coverage</h2>
+          <p>${COVERAGE_TEXT}</p>
+          ${coverageBlock}
         </section>
         <section class="reveal">
           <h2>Our services</h2>
@@ -964,10 +946,10 @@ page({
 
 /* ================= KNOWLEDGE CENTRE ================= */
 const FAQS = [
-  ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, home textiles such as towels and bedding, and finished-goods packing and shipments.'],
-  ['At which production stages can an inspection be carried out?', 'From the Pre-Production Check (PPC) through Initial Production Check (IPC), During Production Check (DUPRO), Final Random Inspection (FRI) and Pre-Shipment Inspection (PSI). 100% inspection, re-inspection and in-line quality checks are also available.'],
-  ['How much does an inspection cost?', 'Estimated standard fees are US$200 per man-day for inspection services and US$275 per man-day for factory assessment. The final quotation depends on inspection scope, duration and required manpower.'],
-  ['Where are you based?', 'MK Textile Service is based in Karachi, Pakistan.'],
+  ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, and home textiles such as towels and bedding. We also inspect containers and cartons at loading and unloading.'],
+  ['Which garment inspection categories do you offer?', `${STAGES.map(([n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')}.`],
+  ['How much does an inspection cost?', `Estimated standard fees are US$200 per man-day for inspection services and US$${FACTORY.rate} per man-day for Factory Assessment &amp; Quality Audit. ${RATE_NOTE}`],
+  ['Where in Pakistan do you work?', 'Coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country. Assignments are subject to availability and confirmation.'],
   ['How are the sampling plan and acceptance criteria decided?', 'The scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
   ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. A suitable sample is shared privately after the request has been reviewed.'],
   ['Is a factory assessment a certification?', 'No. It is an independent evaluation against a scope agreed with the client. No formal certificate is issued.'],
@@ -1071,10 +1053,8 @@ const ENQUIRY_TYPES = [
   ['garment', 'Garment Inspection'],
   ['fabric', 'Fabric &amp; Material Inspection'],
   ['home-textile', 'Home Textile Inspection'],
-  ['packaging', 'Packaging &amp; Shipment Inspection'],
-  ['container-loading', 'Container Loading Supervision'],
-  ['container-unloading', 'Container Unloading Inspection'],
-  ['factory-assessment', 'Factory Assessment'],
+  ['container', 'Container Loading &amp; Unloading Inspection'],
+  ['factory-assessment', 'Factory Assessment &amp; Quality Audit'],
   ['sample-report', 'Sample Report Request'],
 ];
 
@@ -1101,7 +1081,7 @@ page({
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('pin')}</span>
-          <div><h3>Location</h3><p>Based in Karachi, Pakistan</p></div>
+          <div><h3>Location &amp; coverage</h3><p>Based in Karachi, Pakistan. Inspections across Pakistan&rsquo;s major textile and manufacturing centres.</p></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('globe')}</span>
@@ -1145,7 +1125,7 @@ page({
               <label for="f-stage">Inspection Stage <span class="opt">(if relevant)</span></label>
               <select id="f-stage" name="inspectionStage">
                 <option value="">Not applicable / not sure</option>
-                ${STAGES.map(([code, name]) => `<option>${/^[A-Z]{3,5}$/.test(code) ? code + ' – ' : ''}${name}</option>`).join('')}
+                ${STAGES.map(([name]) => `<option>${name}</option>`).join('')}
               </select>
             </div>
             <fieldset class="field field--full" data-report-field hidden>
@@ -1167,7 +1147,7 @@ page({
               <input id="f-date" name="preferredDate" type="date">
             </div>
             <div class="field field--full">
-              <label for="f-message">Inspection Requirements / Details <span class="req">*</span></label>
+              <label for="f-message">Inspection Requirements / Details <span class="req" data-msg-req>*</span><span class="opt" data-msg-opt hidden>(optional)</span></label>
               <textarea id="f-message" name="message" required></textarea>
               <span class="error">Please describe your requirements.</span>
             </div>

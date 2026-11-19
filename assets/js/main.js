@@ -173,7 +173,16 @@
     var chosen = (params.get('reports') || '').split(',');
     $$('input[name="reports"]', form).forEach(function (b) { if (chosen.indexOf(b.value) > -1) b.checked = true; });
 
-    var syncReports = function () { reportField.hidden = type.value !== 'sample-report'; };
+    // Sample-report requests: show report checkboxes; the message becomes optional.
+    var msg = form.elements['message'];
+    var syncReports = function () {
+      var sample = type.value === 'sample-report';
+      reportField.hidden = !sample;
+      msg.required = !sample;
+      $('[data-msg-req]', form).hidden = sample;
+      $('[data-msg-opt]', form).hidden = !sample;
+      if (sample) { msg.closest('.field').classList.remove('is-invalid'); msg.removeAttribute('aria-invalid'); }
+    };
     type.addEventListener('change', syncReports);
     syncReports();
 

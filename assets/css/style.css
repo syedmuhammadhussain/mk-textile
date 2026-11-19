@@ -185,6 +185,20 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hero-points li { display: inline-flex; align-items: center; gap: 8px; }
 .hero-points .icon { width: 18px; height: 18px; color: var(--teal); }
 
+/* Homepage Option C: three informational (non-clickable) highlights */
+.hero-highlights { margin: 0; padding: 8px 28px; border-left: 1px solid rgba(255, 255, 255, .16); }
+.hero-highlights li { display: flex; gap: 16px; padding: 22px 0; }
+.hero-highlights li + li { border-top: 1px solid rgba(255, 255, 255, .12); }
+.hero-highlights .hl-icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(197, 155, 39, .4); color: var(--teal); }
+.hero-highlights .hl-icon .icon { width: 22px; height: 22px; }
+.hero-highlights h2 { font-size: 1.05rem; letter-spacing: -.01em; color: #fff; }
+.hero-highlights p { margin: 4px 0 0; font-size: .9rem; line-height: 1.5; color: rgba(255, 255, 255, .72); }
+:root[data-shade]:not([data-shade="1"]) .hero-highlights { border-left-color: var(--line); }
+:root[data-shade]:not([data-shade="1"]) .hero-highlights li + li { border-top-color: var(--line); }
+:root[data-shade]:not([data-shade="1"]) .hero-highlights .hl-icon { border-color: var(--line); background: #fff; color: var(--teal-600); }
+:root[data-shade]:not([data-shade="1"]) .hero-highlights h2 { color: var(--navy); }
+:root[data-shade]:not([data-shade="1"]) .hero-highlights p { color: var(--muted); }
+@media (max-width: 1023px) { .hero-highlights { padding: 0; border-left: 0; border-top: 1px solid rgba(255, 255, 255, .16); } }
 .hero-card { padding: 26px; border: 1px solid rgba(255, 255, 255, .16); border-radius: 22px; background: rgba(255, 255, 255, .07); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 30px 80px rgba(3, 14, 30, .35); }
 .hero-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .hero-card-head h2 { font-size: 1.05rem; color: #fff; letter-spacing: -.01em; }

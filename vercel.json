@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/packaging-shipment-inspection", "destination": "/inspection-services", "permanent": true },
+    { "source": "/container-loading-supervision", "destination": "/container-loading-unloading-inspection", "permanent": true },
+    { "source": "/container-unloading-inspection", "destination": "/container-loading-unloading-inspection", "permanent": true },
+    { "source": "/guide-packaging-carton-inspection", "destination": "/knowledge-centre", "permanent": true }
+  ]
 }
