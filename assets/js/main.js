@@ -2,18 +2,12 @@
 (function () {
   'use strict';
 
-  /* ------------------------------------------------------------------
-     Business details. Fill these in once confirmed — nothing is invented.
-     whatsapp:     full number with country code, digits only, e.g. "923001234567"
-     email:        official business email (used as a fallback for the form)
-     formEndpoint: URL of the enquiry backend that stores the enquiry and
-                   sends the email notification (accepts a JSON POST)
-     ------------------------------------------------------------------ */
+  /* Business details. The enquiry form posts to its own action attribute
+     (FormSubmit, set once in build.mjs). */
   var CONFIG = {
     whatsapp: '923212308070',
     email: 'info@mktextileservice.com',
-    formEndpoint: '',
-    shadePreview: true, // set to false to hide the colour-shade switcher once the client has chosen
+    maxFile: 10 * 1024 * 1024, // FormSubmit rejects attachments over 10 MB
     whatsappMessage: 'Hello MK Textile Service, I would like to enquire about your inspection services.'
   };
 
@@ -62,15 +56,15 @@
         if (b) b.setAttribute('aria-expanded', 'false');
       }
     });
-    var cw = $('.cw');
-    if (cw && cw.open && !cw.contains(e.target)) cw.open = false;
+    var lang = $('.lang');
+    if (lang && lang.open && !lang.contains(e.target)) lang.open = false;
   });
   doc.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     setNav(false);
     $$('.has-sub.is-open').forEach(function (li) { li.classList.remove('is-open'); });
-    var cw = $('.cw');
-    if (cw) cw.open = false;
+    var lang = $('.lang');
+    if (lang) lang.open = false;
   });
 
   /* Reveal on scroll */
@@ -89,8 +83,7 @@
     reveals.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  /* WhatsApp links: direct chat with a prefilled message once the number is set.
-     Until then they fall back to the enquiry form (their default href). */
+  /* WhatsApp links: direct chat with a prefilled message. */
   if (CONFIG.whatsapp) {
     var wa = 'https://wa.me/' + CONFIG.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(CONFIG.whatsappMessage);
     $$('[data-whatsapp]').forEach(function (a) {
@@ -99,40 +92,51 @@
       a.rel = 'noopener';
     });
   }
-  $$('[data-pending]').forEach(function (el) {
-    var key = el.getAttribute('data-pending');
-    if (CONFIG[key]) el.textContent = key === 'whatsapp' ? '+' + CONFIG.whatsapp.replace(/\D/g, '') : CONFIG[key];
-  });
 
-  /* Theme preview switcher: dark burgundy plus three light themes, remembered per browser.
-     A link with ?shade=1..4 opens the site in that shade. */
-  if (CONFIG.shadePreview) {
-    var SHADES = [['1', 'Dark burgundy', '#500A13'], ['2', 'Light ivory', '#F6EDDD'], ['3', 'Light grey', '#E8EBF0'], ['4', 'Light blue', '#DFEBF7']];
-    var fromUrl = new URLSearchParams(window.location.search).get('shade');
-    if (/^[1-4]$/.test(fromUrl || '')) { try { localStorage.setItem('mk-shade', fromUrl); } catch (e) {} }
-    var bar = doc.createElement('div');
-    bar.className = 'shade-switch';
-    bar.setAttribute('role', 'group');
-    bar.setAttribute('aria-label', 'Colour shade preview');
-    var shadeLabel = doc.createElement('span');
-    shadeLabel.textContent = 'Shade';
-    bar.appendChild(shadeLabel);
-    var setShade = function (id) {
-      if (id === '1') root.setAttribute('data-shade', '1'); else root.setAttribute('data-shade', id);
-      try { localStorage.setItem('mk-shade', id); } catch (e) {}
-      $$('button', bar).forEach(function (b) { b.setAttribute('aria-pressed', String(b.value === id)); });
-    };
-    SHADES.forEach(function (s) {
-      var b = doc.createElement('button');
-      b.type = 'button'; b.value = s[0]; b.textContent = s[0]; b.title = s[1];
-      b.setAttribute('aria-label', 'Shade ' + s[0] + ': ' + s[1]);
-      b.style.background = s[2];
-      if (s[0] !== '1') b.style.color = '#500A13';
-      b.addEventListener('click', function () { setShade(s[0]); });
-      bar.appendChild(b);
+  /* Language menu. English is the source; other languages are translated in
+     the browser by Google Translate, which reads the googtrans cookie on load. */
+  var readLang = function () {
+    var m = doc.cookie.match(/(?:^|;\s*)googtrans=\/[^/;]*\/([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : 'en';
+  };
+  var setLangCookie = function (value) {
+    var host = location.hostname;
+    var v = 'googtrans=' + (value || '') + (value ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 GMT') + '; path=/';
+    doc.cookie = v;
+    if (host.indexOf('.') > -1 && !/^[\d.]+$/.test(host)) {
+      doc.cookie = v + '; domain=' + host;
+      doc.cookie = v + '; domain=.' + host.replace(/^www\./, '');
+    }
+  };
+  var currentLang = readLang();
+  var langMenu = $('.lang');
+  if (langMenu) {
+    var currentBtn = $('[data-lang="' + currentLang + '"]', langMenu) || $('[data-lang="en"]', langMenu);
+    $('[data-lang-current]', langMenu).textContent = currentBtn.getAttribute('data-short');
+    currentBtn.setAttribute('aria-current', 'true');
+    $$('[data-lang]', langMenu).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var code = b.getAttribute('data-lang');
+        langMenu.open = false;
+        if (code === currentLang) return;
+        setLangCookie(code === 'en' ? '' : '/en/' + code);
+        window.location.reload();
+      });
     });
-    doc.body.appendChild(bar);
-    setShade(fromUrl && /^[1-4]$/.test(fromUrl) ? fromUrl : (root.getAttribute('data-shade') || '1'));
+  }
+  if (currentLang !== 'en') {
+    window.mkTranslateInit = function () {
+      /* global google */
+      new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'mk-translate');
+    };
+    var holder = doc.createElement('div');
+    holder.id = 'mk-translate';
+    holder.hidden = true;
+    doc.body.appendChild(holder);
+    var gt = doc.createElement('script');
+    gt.src = 'https://translate.google.com/translate_a/element.js?cb=mkTranslateInit';
+    gt.async = true;
+    doc.body.appendChild(gt);
   }
 
   /* Footer year */
@@ -161,22 +165,29 @@
     sync();
   }
 
-  /* Common enquiry form */
+  /* Common enquiry form, delivered to the inbox by FormSubmit: in the
+     background when there is no file, or as a normal form post (needed for
+     attachments) that returns to the thank-you page. */
   var form = $('#enquiry-form');
   if (form) {
-    var type = form.elements['enquiryType'];
+    var type = form.elements['Enquiry type'];
     var reportField = $('[data-report-field]', form);
+    var reportBoxes = $$('input[data-report]', form);
+    var fileInput = form.elements['attachment'];
+    var msg = form.elements['Message'];
     var status = $('.form-status', form);
+    var btn = $('button[type="submit"]', form);
+    var typeKey = function () { return type.options[type.selectedIndex].getAttribute('data-key'); };
 
-    var service = params.get('service');
-    if (service && $('option[value="' + service.replace(/[^a-z-]/g, '') + '"]', type)) type.value = service;
+    var service = (params.get('service') || '').replace(/[^a-z-]/g, '');
+    var preset = service && $('option[data-key="' + service + '"]', type);
+    if (preset) type.value = preset.value;
     var chosen = (params.get('reports') || '').split(',');
-    $$('input[name="reports"]', form).forEach(function (b) { if (chosen.indexOf(b.value) > -1) b.checked = true; });
+    reportBoxes.forEach(function (b) { if (chosen.indexOf(b.value) > -1) b.checked = true; });
 
     // Sample-report requests: show report checkboxes; the message becomes optional.
-    var msg = form.elements['message'];
     var syncReports = function () {
-      var sample = type.value === 'sample-report';
+      var sample = typeKey() === 'sample-report';
       reportField.hidden = !sample;
       msg.required = !sample;
       $('[data-msg-req]', form).hidden = sample;
@@ -186,11 +197,20 @@
     type.addEventListener('change', syncReports);
     syncReports();
 
-    var say = function (kind, msg) {
+    var say = function (kind, text) {
       status.className = 'form-status is-' + kind;
-      status.textContent = msg;
+      status.textContent = text;
       status.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     };
+
+    var fileOk = function () {
+      var f = fileInput.files && fileInput.files[0];
+      var ok = !f || f.size <= CONFIG.maxFile;
+      fileInput.closest('.field').classList.toggle('is-invalid', !ok);
+      fileInput.setAttribute('aria-invalid', String(!ok));
+      return ok;
+    };
+    fileInput.addEventListener('change', fileOk);
 
     var validate = function () {
       var firstBad = null;
@@ -201,80 +221,74 @@
         input.setAttribute('aria-invalid', String(!ok));
         if (!ok && !firstBad) firstBad = input;
       });
+      if (!fileOk() && !firstBad) firstBad = fileInput;
       if (firstBad) firstBad.focus();
       return !firstBad;
     };
     form.addEventListener('input', function (e) {
       var field = e.target.closest('.field.is-invalid');
-      if (field && e.target.value.trim() !== '' && e.target.checkValidity()) {
+      if (field && e.target.type !== 'file' && e.target.value.trim() !== '' && e.target.checkValidity()) {
         field.classList.remove('is-invalid');
         e.target.setAttribute('aria-invalid', 'false');
       }
     });
 
+    var sending = false;
+    // Coming back from the thank-you page restores this page from cache: unlock the button.
+    window.addEventListener('pageshow', function () {
+      sending = false;
+      btn.disabled = false;
+      $$('input:disabled, select:disabled, textarea:disabled', form).forEach(function (el) { el.disabled = false; });
+    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (sending) return;
       status.className = 'form-status';
-      if (form.elements['website'].value) return;          // honeypot: bots only
+      if (form.elements['_honey'].value) { say('success', 'Thank you. Your enquiry has been sent.'); return; } // bots only
       if (!validate()) { say('error', 'Please complete the highlighted fields.'); return; }
 
-      var data = {
-        fullName: form.elements['fullName'].value.trim(),
-        companyName: form.elements['companyName'].value.trim(),
-        email: form.elements['email'].value.trim(),
-        country: form.elements['country'].value.trim(),
-        enquiryType: type.options[type.selectedIndex].text,
-        inspectionStage: form.elements['inspectionStage'].value,
-        location: form.elements['location'].value.trim(),
-        quantity: form.elements['quantity'].value.trim(),
-        preferredDate: form.elements['preferredDate'].value,
-        reports: type.value === 'sample-report'
-          ? $$('input[name="reports"]:checked', form).map(function (b) { return b.parentNode.textContent.trim(); })
-          : [],
-        message: form.elements['message'].value.trim(),
-        submittedAt: new Date().toISOString()
-      };
+      var sample = typeKey() === 'sample-report';
+      form.elements['Report types'].value = sample
+        ? reportBoxes.filter(function (b) { return b.checked; }).map(function (b) { return b.parentNode.textContent.trim(); }).join('; ')
+        : '';
+      form.elements['_subject'].value = 'Website enquiry: ' + type.value + ' - ' + form.elements['Full name'].value.trim();
+      form.elements['_next'].value = window.location.origin + '/thank-you.html';
 
-      if (CONFIG.formEndpoint) {
-        var btn = $('button[type="submit"]', form);
-        btn.disabled = true;
-        fetch(CONFIG.formEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(data)
-        }).then(function (res) {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          form.reset();
-          syncReports();
-          say('success', 'Thank you. Your enquiry has been received and MK Textile Service will respond to you by email.');
-        }).catch(function () {
-          say('error', 'Sorry, your enquiry could not be sent. Please try again in a moment.');
-        }).then(function () { btn.disabled = false; });
+      sending = true;
+      btn.disabled = true;
+
+      // A file can only travel with a normal form post.
+      if (fileInput.files && fileInput.files.length) {
+        say('info', 'Sending your enquiry and file...');
+        // Leave empty optional fields out of the email.
+        $$('input, select, textarea', form).forEach(function (el) {
+          if (el.name && el.type !== 'file' && el.name !== '_honey' && el.value === '') el.disabled = true;
+        });
+        form.submit();
         return;
       }
 
-      if (CONFIG.email) {
-        var lines = [
-          'Full name: ' + data.fullName,
-          'Company: ' + data.companyName,
-          'Email: ' + data.email,
-          'Country: ' + data.country,
-          'Enquiry type: ' + data.enquiryType,
-          'Inspection stage: ' + (data.inspectionStage || '-'),
-          'Factory / inspection location: ' + (data.location || '-'),
-          'Product quantity: ' + (data.quantity || '-'),
-          'Preferred inspection date: ' + (data.preferredDate || '-')
-        ];
-        if (data.reports.length) lines.push('Report type(s): ' + data.reports.join('; '));
-        lines.push('', data.message);
-        window.location.href = 'mailto:' + CONFIG.email +
-          '?subject=' + encodeURIComponent('Website enquiry: ' + data.enquiryType) +
-          '&body=' + encodeURIComponent(lines.join('\n'));
-        say('info', 'Your email app has been opened with the enquiry details. Please send the message to complete your enquiry.');
-        return;
-      }
-
-      say('info', 'The enquiry form is not connected to the enquiry system yet, so nothing has been sent. Your details pass validation and would be submitted once the backend is configured.');
+      var payload = {};
+      new FormData(form).forEach(function (v, k) {
+        if (k === 'attachment' || k === '_honey' || k === '_next' || v === '') return;
+        payload[k] = v;
+      });
+      say('info', 'Sending your enquiry...');
+      fetch(form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || 'HTTP ' + res.status);
+        });
+      }).then(function () {
+        form.reset();
+        syncReports();
+        say('success', 'Thank you. Your enquiry has been sent and MK Textile Service will reply to you by email.');
+      }).catch(function () {
+        say('error', 'Sorry, your enquiry could not be sent. Please try again, or email us at ' + CONFIG.email + '.');
+      }).then(function () { sending = false; btn.disabled = false; });
     });
   }
 })();

@@ -15,6 +15,10 @@ const SITE = 'MK Textile Service';
 const EMAIL = 'info@mktextileservice.com';
 const PHONE = '+923212308070'; // calls and WhatsApp
 const PHONE_DISPLAY = '+92 321 2308070';
+// Enquiry form delivery: FormSubmit emails each submission (with any attached
+// file) to this address. The first submission sends a one-time activation
+// email to the inbox; enquiries arrive once that link has been clicked.
+const FORM_ACTION = `https://formsubmit.co/${EMAIL}`;
 const WA_URL = `https://wa.me/${PHONE.replace(/\D/g, '')}`;
 
 /* ---------- icons (24px line icons) ---------- */
@@ -48,6 +52,7 @@ const ICONS = {
 const icon = (name, cls = '') =>
   `<svg class="icon${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 const arrow = icon('arrow', 'icon--arrow');
+const waIcon = '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.82 9.82 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.29A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.33.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.33 11.89-11.89 0-3.18-1.24-6.16-3.48-8.41"/></svg>';
 
 // Company logo mark (MK + swoosh). Light variant is for dark backgrounds.
 const emblem = `<img class="brand-mark" src="assets/img/logo-mark.png" width="439" height="192" alt="">`;
@@ -65,34 +70,26 @@ const SERVICES = [
 const FACTORY = { key: 'factory-assessment', file: 'factory-assessment.html', icon: 'factory', name: 'Factory Assessment &amp; Quality Audit', short: 'Capability, quality management and production readiness.', rate: 300 };
 const ALL = [...SERVICES, FACTORY];
 
-const CITIES = ['Karachi', 'Lahore', 'Faisalabad', 'Sialkot', 'Multan', 'Islamabad', 'Rawalpindi'];
 const KARACHI_NOTE = 'Standard rates apply to inspections conducted within Karachi city. For cities apart from Karachi charges may vary.';
 const RATE_NOTE = `${KARACHI_NOTE} Final quotation depends on inspection scope, location, duration and required manpower.`;
-const COVERAGE_TEXT = 'MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres. Our service coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country.';
 
 const REPORTS = [
-  ['sample-picking', 'Sample Picking Report', 'Samples selected and collected as agreed'],
-  ['pre-production', 'Pre-Production Report', 'Materials, specifications and readiness'],
   ['initial-production', 'Initial Production Report', 'First production output and process setup'],
   ['during-production', 'During Production Report', 'Bulk production quality and defects'],
   ['final-random', 'Final Random Inspection Report', 'Completed goods against agreed criteria'],
   ['production-monitoring', 'Production Monitoring Report', 'Quality trends and corrective actions'],
-  ['defect-sorting', '100% Inspection (Defect Sorting) Report', 'Every unit checked, defects separated'],
   ['fabric', 'Fabric Inspection Report', 'Roll-wise findings and defect records'],
   ['home-textile', 'Home Textile Inspection Report', 'Product-wise findings and measurements'],
   ['container', 'Container Loading &amp; Unloading Inspection Report', 'Container condition, cartons and seals'],
   ['factory-assessment', 'Factory Assessment / Quality Audit Report', 'Capability, quality systems and CAPA'],
 ];
 
-// The seven garment inspection categories, in the approved order.
+// The four garment inspection categories, in the approved order.
 const STAGES = [
-  ['Sample Picking', 'Select and collect samples from production as agreed with the client, for approval, review or testing.'],
-  ['Pre-Production', 'Review materials, specifications, samples, production readiness and quality requirements before bulk production.'],
   ['Initial Production', 'Check initial production output, workmanship, measurements and process setup.'],
   ['During Production', 'Check bulk production quality, defects, measurements and corrective actions.'],
   ['Final Random Inspection', 'Evaluate a selected sample of completed goods against agreed inspection criteria.'],
   ['Production Monitoring', 'Continuous or scheduled monitoring of workmanship, quality and production progress throughout manufacturing.'],
-  ['100% Inspection (Defect Sorting)', 'Inspect every unit within the agreed scope and separate defective pieces.'],
 ];
 const MONITORING = [
   'Monitor production quality at different manufacturing stages.',
@@ -109,6 +106,13 @@ const enquiry = (service, reports) =>
 const strip = (s) => s.replace(/&amp;/g, '&').replace(/&rsquo;/g, '’').replace(/&middot;/g, '·');
 
 /* ---------- layout ---------- */
+// Language menu. Pages are written in English; other languages are machine
+// translated in the browser (Google Translate), switched from the header.
+const LANGS = [['en', 'English', 'EN'], ['ur', 'اردو', 'UR'], ['zh-CN', '中文', '中文'], ['ar', 'العربية', 'AR'], ['de', 'Deutsch', 'DE'], ['fr', 'Français', 'FR'], ['es', 'Español', 'ES']];
+const langSwitch = `<details class="lang notranslate" translate="no">
+        <summary aria-label="Choose language">${icon('globe')}<span data-lang-current>EN</span>${icon('chevron')}</summary>
+        <ul class="lang-menu">${LANGS.map(([code, name, short]) => `<li><button type="button" data-lang="${code}" data-short="${short}" lang="${code}">${name}</button></li>`).join('')}</ul>
+      </details>`;
 const NAV = [
   ['index.html', 'Home'],
   ['inspection-services.html', 'Inspection Services'],
@@ -121,7 +125,7 @@ const NAV = [
 
 function header(active, section) {
   const subLink = (s) => `<li><a href="${s.file}"${s.file === active ? ' aria-current="page"' : ''}>${icon(s.icon)}<span><strong>${s.name}</strong><small>${s.short}</small></span></a></li>`;
-  const items = NAV.map(([href, label]) => {
+  const items = NAV.filter(([href]) => href !== 'contact.html').map(([href, label]) => {
     const current = href === active ? ' aria-current="page"' : '';
     const inSection = href === section ? ' class="is-active"' : '';
     if (href !== 'inspection-services.html') return `<li${inSection}><a href="${href}"${current}>${label}</a></li>`;
@@ -140,14 +144,15 @@ function header(active, section) {
   <div class="container header-inner">
     <a class="brand" href="index.html" aria-label="${SITE} — home">
       ${emblemFull}${emblem}
-      <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
+      <span class="brand-text"><strong translate="no">${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
     </a>
     <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">${icon('menu', 'icon--open')}${icon('close', 'icon--close')}</button>
     <nav class="site-nav" id="site-nav" aria-label="Main">
       <ul class="nav-list">
         ${items}
       </ul>
-      <a class="btn btn--primary nav-cta" href="contact.html#enquiry">Get in Touch</a>
+      <a class="btn btn--primary nav-cta" href="contact.html#enquiry"${active === 'contact.html' ? ' aria-current="page"' : ''}>Get in Touch</a>
+      ${langSwitch}
     </nav>
   </div>
 </header>`;
@@ -158,7 +163,7 @@ const footer = `<footer class="site-footer">
     <div>
       <a class="brand" href="index.html" aria-label="${SITE} — home">
         ${emblemLight}
-        <span class="brand-text"><strong>${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
+        <span class="brand-text"><strong translate="no">${SITE}</strong><small>Inspection &amp; Factory Assessment</small></span>
       </a>
       <p class="footer-about">Independent third-party textile inspection and factory assessment services in Pakistan.</p>
     </div>
@@ -177,8 +182,8 @@ const footer = `<footer class="site-footer">
     <div class="footer-contact">
       <h2>Contact</h2>
       <ul>
-        <li><a href="mailto:${EMAIL}">${icon('mail')}${EMAIL}</a></li>
-        <li><a href="tel:${PHONE}">${icon('phone')}${PHONE_DISPLAY}</a></li>
+        <li><a href="mailto:${EMAIL}">${icon('mail')}<span translate="no">${EMAIL}</span></a></li>
+        <li><a href="tel:${PHONE}">${icon('phone')}<span translate="no">${PHONE_DISPLAY}</span></a></li>
         <li><a href="${WA_URL}" data-whatsapp>${icon('chat')}WhatsApp</a></li>
         <li><a href="sample-reports.html">${icon('report')}Request Sample Reports</a></li>
         <li><span class="footer-line">${icon('pin')}Based in Karachi, Pakistan</span></li>
@@ -191,15 +196,7 @@ const footer = `<footer class="site-footer">
   </div>
 </footer>`;
 
-const widget = `<details class="cw">
-  <summary aria-label="Contact us">${icon('chat', 'icon--open')}${icon('close', 'icon--close')}Contact Us</summary>
-  <div class="cw-panel">
-    <h2>Contact Us</h2>
-    <p>Send an enquiry or chat with us directly.</p>
-    <a class="btn btn--primary" href="contact.html#enquiry">${icon('mail')}Email Us</a>
-    <a class="btn btn--wa" href="${WA_URL}" data-whatsapp>${icon('chat')}WhatsApp</a>
-  </div>
-</details>`;
+const widget = `<a class="wa-float" href="${WA_URL}" data-whatsapp aria-label="Chat with us on WhatsApp">${waIcon}<span>WhatsApp</span></a>`;
 
 const built = [];
 
@@ -207,7 +204,7 @@ function page({ file, title, description, body, jsonld, section, noindex }) {
   const canonical = SITE_URL ? `\n<link rel="canonical" href="${SITE_URL}/${file === 'index.html' ? '' : file.replace(/\.html$/, '')}">` : '';
   const ld = jsonld ? `\n<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : '';
   const html = `<!doctype html>
-<html lang="en">
+<html lang="en" data-shade="2">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -225,7 +222,7 @@ function page({ file, title, description, body, jsonld, section, noindex }) {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"></noscript>
 <link rel="stylesheet" href="assets/css/style.css">
-<script>document.documentElement.classList.add('js');try{var s=new URLSearchParams(location.search).get('shade')||localStorage.getItem('mk-shade');if(/^[234]$/.test(s))document.documentElement.setAttribute('data-shade',s)}catch(e){}</script>
+<script>document.documentElement.classList.add('js')</script>
 <script src="assets/js/main.js" defer></script>${ld}
 </head>
 <body>
@@ -288,12 +285,6 @@ const ctaBand = (h2, p, buttons) => `<section class="section section--tight">
     </div>
   </section>`;
 
-const defaultCta = ctaBand(
-  'Discuss your inspection requirements',
-  'Tell us the product, the service you need and the factory location. We will review your requirements and contact you about the next steps.',
-  `<a class="btn btn--teal" href="contact.html#enquiry">Get in Touch ${arrow}</a><a class="btn btn--ghost" href="sample-reports.html">Request Sample Reports</a>`
-);
-
 const price = (s) => `US$${s.rate} <small>/ Man-Day</small>`;
 
 const serviceLd = (name, description) => ({
@@ -339,13 +330,11 @@ function servicePage({ svc, title, description, intro, eyebrow, requestLabel, sa
           <p>${KARACHI_NOTE} <a href="inspection-services.html#rates">Rate details</a></p>
           <a class="btn btn--primary btn--block" href="${enquiry(svc.key)}">${requestLabel} ${arrow}</a>
           <a class="btn btn--outline btn--block" href="${enquiry('sample-report', sampleReports)}">${icon('report')}${sampleLabel}</a>
-          <a class="btn btn--outline btn--block" href="contact.html">Contact Us</a>
         </div>
         ${otherServices(svc.key)}
       </aside>
     </div>
-  </section>
-  ${defaultCta}`,
+  </section>`,
   });
 }
 
@@ -390,9 +379,9 @@ const ARTICLES = [
   {
     file: 'guide-garment-inspection-categories.html', cat: 'Garments', related: SERVICES[0],
     title: 'Garment Inspection Categories Explained',
-    desc: 'The seven garment inspection categories, from Sample Picking and Pre-Production to Final Random Inspection, Production Monitoring and 100% Inspection (Defect Sorting).',
+    desc: 'The four garment inspection categories: Initial Production, During Production, Final Random Inspection and Production Monitoring.',
     intro: 'Garment inspection can be arranged at different points of an order. Each category answers a different question about the goods.',
-    parts: [['The seven categories', STAGES.map(([name, text]) => `<strong>${name}:</strong> ${text}`)]],
+    parts: [['The four categories', STAGES.map(([name, text]) => `<strong>${name}:</strong> ${text}`)]],
     close: 'An order can use one category or several. The scope, sampling plan and acceptance criteria are agreed with the client for each inspection.',
   },
   {
@@ -482,10 +471,10 @@ const ARTICLES = [
 const tickerItems = ['Apparel', 'Denim', 'Woven Garments', 'Knitwear', 'Sportswear', 'Socks &amp; Hosiery', 'Children&rsquo;s Wear', 'Fabric Rolls', 'Towels', 'Bedding', 'Quilts', 'Kitchen Textiles'];
 const tickerList = (hidden) => `<ul${hidden ? ' aria-hidden="true"' : ''}>${tickerItems.map((t) => `<li>${t}</li>`).join('')}</ul>`;
 const guide = (file) => ARTICLES.find((a) => a.file === file);
-const coverageBlock = `<ul class="cities">${CITIES.map((c) => `<li>${icon('pin')}${c}</li>`).join('')}<li class="more">+ other manufacturing locations</li></ul>`;
 const HIGHLIGHTS = [
-  ['shirt', 'Garment Inspection', 'Quality checks from sample picking and production stages through final random inspection and defect sorting.'],
+  ['shirt', 'Garment Inspection', 'Quality checks from initial and bulk production through production monitoring and final random inspection.'],
   ['layers', 'Fabric Inspection', 'Fabric quality, appearance, shade, construction and material verification.'],
+  ['bed', 'Home Textile Inspection', 'Towels, bedding, quilts and kitchen textiles checked for appearance, dimensions, workmanship and packing.'],
   ['factory', 'Factory Assessment', 'Review of factory capability, facilities, quality systems and manufacturing processes.'],
 ];
 const articleCard =(a, d = 0) => `<a class="card topic reveal"${d ? ` style="--d:${d}ms"` : ''} href="${a.file}"><span class="tag">${a.cat}</span><h3>${a.title}</h3><p>${a.desc}</p><span class="link-arrow">Read guide ${arrow}</span></a>`;
@@ -517,14 +506,14 @@ page({
       <div>
         <p class="eyebrow eyebrow--light">Independent third-party inspection</p>
         <h1>Textile Inspection Services <span>in Pakistan</span></h1>
-        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards across Pakistan.</p>
+        <p class="lead">Independent third-party inspection and factory assessment services supporting international buyers, brands and businesses in maintaining product quality and manufacturing standards in Pakistan.</p>
         <div class="btn-row">
           <a class="btn btn--teal" href="inspection-services.html">Our Services ${arrow}</a>
           <a class="btn btn--ghost" href="contact.html">Contact Us</a>
         </div>
         <ul class="hero-points">
           <li>${icon('check')}30+ years of industry experience</li>
-          <li>${icon('check')}Nationwide coverage across Pakistan</li>
+          <li>${icon('check')}Based in Karachi, Pakistan</li>
         </ul>
       </div>
       <ul class="hero-highlights" aria-label="Key services">
@@ -619,22 +608,6 @@ page({
   </section>
 
   <section class="section section--alt">
-    <div class="container intro">
-      <div class="reveal">
-        <p class="eyebrow">Nationwide Service Coverage</p>
-        <h2>Across Pakistan&rsquo;s textile and manufacturing centres</h2>
-        <p class="lead">MK Textile Service provides third-party inspection and factory assessment services across Pakistan&rsquo;s major textile and manufacturing centres.</p>
-        ${coverageBlock}
-      </div>
-      <div class="panel reveal" style="--d:100ms">
-        <h3>Rates and locations</h3>
-        <p class="muted">${KARACHI_NOTE} Contact us to discuss your inspection requirements and location.</p>
-        <a class="link-arrow" href="inspection-services.html#rates">View estimated rates ${arrow}</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
     <div class="container">
       <div class="section-head reveal">
         <p class="eyebrow">Knowledge Centre</p>
@@ -645,8 +618,7 @@ page({
       </div>
       <p class="after-grid reveal"><a class="link-arrow" href="knowledge-centre.html">All guides ${arrow}</a></p>
     </div>
-  </section>
-  ${defaultCta}`,
+  </section>`,
 });
 
 /* ================= INSPECTION SERVICES OVERVIEW ================= */
@@ -726,7 +698,7 @@ page({
   ${ctaBand(
     'Need to evaluate a manufacturer?',
     'Factory Assessment &amp; Quality Audit is a separate service covering capability, quality management and production readiness.',
-    `<a class="btn btn--teal" href="factory-assessment.html">Factory Assessment ${arrow}</a><a class="btn btn--ghost" href="contact.html#enquiry">Get in Touch</a>`
+    `<a class="btn btn--teal" href="factory-assessment.html">Factory Assessment ${arrow}</a>`
   )}`,
 });
 
@@ -734,12 +706,12 @@ page({
 servicePage({
   svc: SERVICES[0],
   title: 'Garment Inspection in Pakistan | Production Monitoring &amp; Final Random Inspection | MK Textile Service',
-  description: 'Third-party garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery: sample picking, production checks, production monitoring, final random inspection and defect sorting.',
+  description: 'Third-party garment inspection in Pakistan for apparel, denim, knitwear, sportswear, socks and hosiery: initial and during production checks, production monitoring and final random inspection.',
   eyebrow: 'Inspection Services',
   intro: 'Independent garment inspection services designed to evaluate product quality, workmanship, measurements, appearance and packing at different production stages.',
   requestLabel: 'Request Inspection Service',
   sampleLabel: 'Request Sample Inspection Report',
-  sampleReports: 'final-garment',
+  sampleReports: 'final-random',
   sections: [
     block('Product coverage', list(['Apparel and garments', 'Denim and woven garments', 'Knitwear', 'Sportswear', 'Socks and hosiery', 'Children&rsquo;s wear'], 'chips')),
     block('Inspection categories', `<ul class="rows">
@@ -835,7 +807,6 @@ servicePage({
             <li><h3>Observations</h3><p>Observations are recorded with photographs.</p></li>
             <li><h3>Assessment report</h3><p>Findings are compiled in a structured report.</p></li>
             <li><h3>Private sharing</h3><p>The report is shared privately with the client.</p></li>
-            <li><h3>CAPA follow-up</h3><p>Follow-up on corrective actions if agreed.</p></li>
           </ol>`),
     `<section class="reveal">
           ${note('Not a certification', 'A factory assessment is an independent evaluation against a scope agreed with the client. It is not a certification, and no formal certificate is issued.')}
@@ -917,11 +888,6 @@ page({
           ${list(['Independent inspections', 'Honest findings', 'Clear communication', 'Dependable quality support'], 'checks checks--2')}
         </section>
         <section class="reveal">
-          <h2>Nationwide service coverage</h2>
-          <p>${COVERAGE_TEXT}</p>
-          ${coverageBlock}
-        </section>
-        <section class="reveal">
           <h2>Our services</h2>
           <div class="grid grid--2">
             ${ALL.map((s) => `<a class="card" href="${s.file}"><span class="icon-tile">${icon(s.icon)}</span><h3>${s.name}</h3><p>${s.short}</p><span class="link-arrow">View details ${arrow}</span></a>`).join('\n            ')}
@@ -949,7 +915,6 @@ const FAQS = [
   ['Which products do you inspect?', 'Garments (apparel, denim and woven garments, knitwear, sportswear, socks and hosiery, children&rsquo;s wear), fabrics and materials, and home textiles such as towels and bedding. We also inspect containers and cartons at loading and unloading.'],
   ['Which garment inspection categories do you offer?', `${STAGES.map(([n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')}.`],
   ['How much does an inspection cost?', `Estimated standard fees are US$200 per man-day for inspection services and US$${FACTORY.rate} per man-day for Factory Assessment &amp; Quality Audit. ${RATE_NOTE}`],
-  ['Where in Pakistan do you work?', 'Coverage includes Karachi, Lahore, Faisalabad, Sialkot, Multan, Islamabad, Rawalpindi and other manufacturing locations across the country. Assignments are subject to availability and confirmation.'],
   ['How are the sampling plan and acceptance criteria decided?', 'The scope, sampling plan and acceptance criteria are agreed with the client for each inspection. There is no single universal setting applied to every order.'],
   ['Can I see a sample report before booking?', 'Yes. Select the report types on the Sample Reports page and submit the request. A suitable sample is shared privately after the request has been reviewed.'],
   ['Is a factory assessment a certification?', 'No. It is an independent evaluation against a scope agreed with the client. No formal certificate is issued.'],
@@ -995,8 +960,7 @@ page({
         ${FAQS.map(([q, a]) => `<details><summary>${q}${icon('chevron')}</summary><div class="answer"><p>${a}</p></div></details>`).join('\n        ')}
       </div>
     </div>
-  </section>
-  ${defaultCta}`,
+  </section>`,
 });
 
 for (const a of ARTICLES) {
@@ -1042,8 +1006,7 @@ for (const a of ARTICLES) {
         </div>
       </aside>
     </div>
-  </section>
-  ${defaultCta}`,
+  </section>`,
   });
 }
 
@@ -1073,35 +1036,40 @@ page({
       <div class="contact-list">
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('mail')}</span>
-          <div><h3>Email</h3><p><a href="mailto:${EMAIL}">${EMAIL}</a></p><a class="link-arrow" href="#enquiry">Use the enquiry form ${arrow}</a></div>
+          <div><h3>Email</h3><p><a href="mailto:${EMAIL}" translate="no">${EMAIL}</a></p><a class="link-arrow" href="#enquiry">Use the enquiry form ${arrow}</a></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('chat')}</span>
-          <div><h3>Phone &amp; WhatsApp</h3><p><a href="tel:${PHONE}">${PHONE_DISPLAY}</a></p><a class="link-arrow" href="${WA_URL}" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
+          <div><h3>Phone &amp; WhatsApp</h3><p><a href="tel:${PHONE}" translate="no">${PHONE_DISPLAY}</a></p><a class="link-arrow" href="${WA_URL}" data-whatsapp>Chat on WhatsApp ${arrow}</a></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('pin')}</span>
-          <div><h3>Location &amp; coverage</h3><p>Based in Karachi, Pakistan. Inspections across Pakistan&rsquo;s major textile and manufacturing centres.</p></div>
+          <div><h3>Location</h3><p>Based in Karachi, Pakistan</p></div>
         </div>
         <div class="contact-item reveal">
           <span class="icon-tile">${icon('globe')}</span>
-          <div><h3>Website</h3><p>mktextileservice.com</p></div>
+          <div><h3>Website</h3><p translate="no">mktextileservice.com</p></div>
         </div>
       </div>
 
       <div class="form-card reveal" id="enquiry">
         <h2>Enquiry form</h2>
         <p>Fields marked <span class="req">*</span> are required.</p>
-        <form id="enquiry-form" novalidate>
+        <form id="enquiry-form" action="${FORM_ACTION}" method="POST" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="_subject" value="Website enquiry">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="${SITE_URL}/thank-you">
+          <input type="hidden" name="Report types" value="">
           <div class="form-grid">
             <div class="field">
               <label for="f-name">Full Name <span class="req">*</span></label>
-              <input id="f-name" name="fullName" type="text" autocomplete="name" required>
+              <input id="f-name" name="Full name" type="text" autocomplete="name" required>
               <span class="error">Please enter your full name.</span>
             </div>
             <div class="field">
               <label for="f-company">Company Name <span class="req">*</span></label>
-              <input id="f-company" name="companyName" type="text" autocomplete="organization" required>
+              <input id="f-company" name="Company" type="text" autocomplete="organization" required>
               <span class="error">Please enter your company name.</span>
             </div>
             <div class="field">
@@ -1111,19 +1079,19 @@ page({
             </div>
             <div class="field">
               <label for="f-country">Country <span class="req">*</span></label>
-              <input id="f-country" name="country" type="text" autocomplete="country-name" required>
+              <input id="f-country" name="Country" type="text" autocomplete="country-name" required>
               <span class="error">Please enter your country.</span>
             </div>
             <div class="field">
               <label for="f-type">Enquiry Type / Inspection Category <span class="req">*</span></label>
-              <select id="f-type" name="enquiryType" required>
-                ${ENQUIRY_TYPES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+              <select id="f-type" name="Enquiry type" required>
+                ${ENQUIRY_TYPES.map(([v, l]) => `<option value="${strip(l)}" data-key="${v}">${l}</option>`).join('')}
               </select>
               <span class="error">Please choose an enquiry type.</span>
             </div>
             <div class="field">
               <label for="f-stage">Inspection Stage <span class="opt">(if relevant)</span></label>
-              <select id="f-stage" name="inspectionStage">
+              <select id="f-stage" name="Inspection stage">
                 <option value="">Not applicable / not sure</option>
                 ${STAGES.map(([name]) => `<option>${name}</option>`).join('')}
               </select>
@@ -1131,29 +1099,35 @@ page({
             <fieldset class="field field--full" data-report-field hidden>
               <legend>Selected Report Type(s)</legend>
               <div class="check-grid">
-                ${REPORTS.map(([value, name]) => `<label><input type="checkbox" name="reports" value="${value}">${name}</label>`).join('\n                ')}
+                ${REPORTS.map(([value, name]) => `<label><input type="checkbox" data-report value="${value}">${name}</label>`).join('\n                ')}
               </div>
             </fieldset>
             <div class="field">
               <label for="f-location">Factory / Inspection Location in Pakistan <span class="opt">(optional)</span></label>
-              <input id="f-location" name="location" type="text" placeholder="e.g. Karachi">
+              <input id="f-location" name="Location" type="text" placeholder="e.g. Karachi">
             </div>
             <div class="field">
               <label for="f-qty">Product Quantity <span class="opt">(if known)</span></label>
-              <input id="f-qty" name="quantity" type="text" inputmode="numeric">
+              <input id="f-qty" name="Quantity" type="text" inputmode="numeric">
             </div>
             <div class="field">
               <label for="f-date">Preferred Inspection Date <span class="opt">(optional)</span></label>
-              <input id="f-date" name="preferredDate" type="date">
+              <input id="f-date" name="Preferred inspection date" type="date">
             </div>
             <div class="field field--full">
               <label for="f-message">Inspection Requirements / Details <span class="req" data-msg-req>*</span><span class="opt" data-msg-opt hidden>(optional)</span></label>
-              <textarea id="f-message" name="message" required></textarea>
+              <textarea id="f-message" name="Message" required></textarea>
               <span class="error">Please describe your requirements.</span>
+            </div>
+            <div class="field field--full">
+              <label for="f-file">Attach a File <span class="opt">(optional)</span></label>
+              <input id="f-file" name="attachment" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.webp,.zip">
+              <span class="hint">PDF, Word, Excel, image or ZIP, up to 10 MB. For example a specification, tech pack or order sheet.</span>
+              <span class="error">This file is larger than 10 MB. Please attach a smaller file.</span>
             </div>
             <div class="hp" aria-hidden="true">
               <label for="f-website">Leave this field empty</label>
-              <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+              <input id="f-website" name="_honey" type="text" tabindex="-1" autocomplete="off">
             </div>
           </div>
           <div class="form-foot">
@@ -1182,10 +1156,10 @@ const legalPage = (file, h1, lead, parts) => page({
 });
 
 legalPage('privacy-policy.html', 'Privacy Policy', 'How MK Textile Service handles the information you send through this website.', [
-  ['Information we collect', `<p>When you send an enquiry or a sample-report request, we receive the details you enter in the form: your name, company name, email address, country, the service you are enquiring about, any inspection stage, location, quantity and preferred date you provide, and your message.</p>`],
+  ['Information we collect', `<p>When you send an enquiry or a sample-report request, we receive the details you enter in the form: your name, company name, email address, country, the service you are enquiring about, any inspection stage, location, quantity and preferred date you provide, your message and any file you attach.</p>`],
   ['How we use it', `<p>We use these details only to review your requirements, respond to your enquiry, prepare a quotation and share requested sample reports. We do not ask for information we do not need for these purposes.</p>`],
-  ['Who receives it', `<p>Enquiry details are received by MK Textile Service. Service providers that support the website, such as hosting and email, may process the data on our behalf. This website loads its typeface from Google Fonts.</p>`],
-  ['Cookies and analytics', `<p>This website does not currently use analytics or marketing cookies. If these are introduced, a cookie preference banner will be shown first so that you can accept or reject optional cookies.</p>`],
+  ['Who receives it', `<p>Enquiry details are received by MK Textile Service. Service providers that support the website, such as hosting and email, may process the data on our behalf. Enquiries and attached files are delivered to our inbox by email through the form service FormSubmit. This website loads its typeface from Google Fonts.</p>`],
+  ['Cookies and analytics', `<p>This website does not currently use analytics or marketing cookies. If you choose a language other than English, the page is translated by Google Translate and a cookie remembers your choice. If these are introduced, a cookie preference banner will be shown first so that you can accept or reject optional cookies.</p>`],
   ['Retention and your requests', `<p>Enquiry records are kept only as long as needed to handle your enquiry and any resulting business relationship. You may ask us to correct or delete your details, where applicable.</p>`],
   ['Contact', `<p>For privacy questions or requests, email <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`],
 ]);
@@ -1200,10 +1174,26 @@ legalPage('terms.html', 'Terms &amp; Conditions', 'Terms for using the MK Textil
   ['Contact', `<p>Questions about these terms can be sent to <a href="mailto:${EMAIL}">${EMAIL}</a>.</p>`],
 ]);
 
+/* ---------- enquiry sent (FormSubmit returns here after a file upload) ---------- */
+page({
+  file: 'thank-you.html',
+  noindex: true,
+  title: 'Enquiry Sent | MK Textile Service',
+  description: 'Your enquiry has been sent to MK Textile Service.',
+  body: `${pageHero({
+    trail: [['Enquiry sent']],
+    eyebrow: 'Thank you',
+    h1: 'Your enquiry has been sent',
+    lead: 'MK Textile Service has received your enquiry and will reply to you by email.',
+    iconName: 'check',
+    buttons: `<a class="btn btn--primary" href="index.html">Back to Home ${arrow}</a><a class="btn btn--outline" href="inspection-services.html">Inspection Services</a>`,
+  })}`,
+});
+
 /* ---------- robots, sitemap ---------- */
 writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 
 const urls = built.map((f) => `  <url><loc>${SITE_URL}/${f === 'index.html' ? '' : f.replace(/\.html$/, '')}</loc></url>`).join('\n');
 writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
 
-console.log(`Built ${built.length} indexed pages + 2 legal pages.`);
+console.log(`Built ${built.length} indexed pages + 3 noindex pages (legal, thank-you).`);
