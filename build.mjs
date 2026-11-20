@@ -108,10 +108,10 @@ const strip = (s) => s.replace(/&amp;/g, '&').replace(/&rsquo;/g, '’').replace
 /* ---------- layout ---------- */
 // Language menu. Pages are written in English; other languages are machine
 // translated in the browser (Google Translate), switched from the header.
-const LANGS = [['en', 'English', 'EN'], ['ur', 'اردو', 'UR'], ['zh-CN', '中文', '中文'], ['ar', 'العربية', 'AR'], ['de', 'Deutsch', 'DE'], ['fr', 'Français', 'FR'], ['es', 'Español', 'ES']];
+const LANGS = [['en', 'English', 'US'], ['de', 'German', 'DE'], ['fr', 'French', 'FR'], ['zh-CN', 'Chinese', 'CN'], ['es', 'Spanish', 'ES'], ['nl', 'Nederlands', 'NL'], ['fi', 'Suomi', 'FI'], ['tr', 'Türkçe', 'TR'], ['el', 'Ελληνικά', 'GR'], ['ro', 'Română', 'RO']];
 const langSwitch = `<details class="lang notranslate" translate="no">
         <summary aria-label="Choose language">${icon('globe')}<span data-lang-current>EN</span>${icon('chevron')}</summary>
-        <ul class="lang-menu">${LANGS.map(([code, name, short]) => `<li><button type="button" data-lang="${code}" data-short="${short}" lang="${code}">${name}</button></li>`).join('')}</ul>
+        <ul class="lang-menu">${LANGS.map(([code, name, short]) => `<li><button type="button" data-lang="${code}" data-short="${short}" lang="${code}"><span class="lang-code">${short}</span><span class="lang-name">${name}</span>${icon('check', 'lang-tick')}</button></li>`).join('')}</ul>
       </details>`;
 const NAV = [
   ['index.html', 'Home'],
@@ -200,6 +200,33 @@ const widget = `<a class="wa-float" href="${WA_URL}" data-whatsapp aria-label="C
 
 const built = [];
 
+/* ---------- Title Case for headings, chips, buttons and link labels ----------
+   Content is written in sentence case; every heading-like label is rendered in
+   Title Case here so no page can miss it. Short connecting words stay lower case
+   (except as the first word), and words with capitals already (GSM, AQL,
+   WhatsApp) are kept as written. Paragraphs, lists and FAQ questions are not touched. */
+const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'per', 'the', 'to', 'vs', 'via', 'with']);
+const titleText = (str, state) => str.replace(/([A-Za-zÀ-ÿ’']+(?:&rsquo;[a-z]+)?|&[a-z]+;)/g, (w, _m, offset, all) => {
+  if (w.startsWith('&')) return w;
+  const before = all.slice(0, offset);
+  const first = state.first;
+  state.first = false;
+  const afterHyphen = /-$/.test(before);
+  const afterColon = /[:.?!]\s*$/.test(before);
+  const last = /^[\s.?!,:;]*$/.test(all.slice(offset + w.length)); // last word is always capitalised
+  if (!first && !last && !afterColon && !afterHyphen && SMALL_WORDS.has(w)) return w;
+  if (afterHyphen && SMALL_WORDS.has(w)) return w;
+  return /^[a-z]/.test(w) ? w[0].toUpperCase() + w.slice(1) : w;
+});
+const titleInner = (inner) => {
+  const state = { first: true };
+  return inner.replace(/(<svg[\s\S]*?<\/svg>)|(<[^>]+>)|([^<]+)/g, (m, svg, tag, txt) => (txt ? titleText(txt, state) : m));
+};
+const titleCaseHtml = (html) => html
+  .replace(/<(h[1-3])(\s[^>]*)?>([\s\S]*?)<\/\1>/g, (m, tag, attrs = '', inner) => `<${tag}${attrs}>${titleInner(inner)}</${tag}>`)
+  .replace(/<ul class="chips">([\s\S]*?)<\/ul>/g, (m, inner) => `<ul class="chips">${inner.replace(/<li>([\s\S]*?)<\/li>/g, (x, t) => `<li>${titleInner(t)}</li>`)}</ul>`)
+  .replace(/<(a|span|button)(\s[^>]*class="[^"]*\b(?:btn|link-arrow)\b[^"]*"[^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) => `<${tag}${attrs}>${titleInner(inner)}</${tag}>`);
+
 function page({ file, title, description, body, jsonld, section, noindex }) {
   const canonical = SITE_URL ? `\n<link rel="canonical" href="${SITE_URL}/${file === 'index.html' ? '' : file.replace(/\.html$/, '')}">` : '';
   const ld = jsonld ? `\n<script type="application/ld+json">${JSON.stringify(jsonld)}</script>` : '';
@@ -235,7 +262,7 @@ ${widget}
 </body>
 </html>
 `;
-  writeFileSync(join(OUT, file), html);
+  writeFileSync(join(OUT, file), titleCaseHtml(html));
   if (!noindex) built.push(file);
 }
 

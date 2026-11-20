@@ -401,11 +401,15 @@ fieldset.field { margin: 0; padding: 0; border: 0; min-width: 0; }
 .lang summary .icon { width: 18px; height: 18px; color: var(--teal-600); }
 .lang summary .icon:last-child { width: 14px; height: 14px; transition: transform .25s var(--ease); }
 .lang[open] summary .icon:last-child { transform: rotate(180deg); }
-.lang-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; min-width: 170px; padding: 6px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-lg); }
-.lang-menu button { display: block; width: 100%; padding: 9px 12px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: inherit; font-size: .92rem; text-align: left; cursor: pointer; }
+.lang-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; width: 240px; max-height: calc(100vh - var(--nav-h) - 24px); overflow-y: auto; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); }
+.lang-menu button { display: flex; align-items: center; gap: 14px; width: 100%; padding: 11px 14px; border: 0; border-radius: 12px; background: none; color: var(--ink); font: inherit; font-size: .95rem; font-weight: 600; text-align: left; cursor: pointer; }
+.lang-menu .lang-code { width: 26px; flex: none; font-size: .86rem; font-weight: 700; color: var(--muted); }
+.lang-menu .lang-name { flex: 1; }
+.lang-menu .lang-tick { width: 16px; height: 16px; visibility: hidden; }
 .lang-menu button:hover { background: var(--bg-alt); }
-.lang-menu button[aria-current="true"] { color: var(--teal-600); font-weight: 600; }
-.lang-menu button[lang="ur"], .lang-menu button[lang="ar"] { text-align: right; }
+.lang-menu button[aria-current="true"] { background: rgba(80, 10, 19, .07); color: var(--navy); }
+.lang-menu button[aria-current="true"] .lang-code { color: var(--navy); }
+.lang-menu button[aria-current="true"] .lang-tick { visibility: visible; }
 /* Google Translate: keep its banner and tooltips out of the layout */
 iframe.skiptranslate, .goog-te-banner-frame, #goog-gt-tt, .goog-te-balloon-frame, body > .skiptranslate { display: none !important; }
 body { top: 0 !important; }
@@ -506,7 +510,7 @@ a.card > .card-rate { margin-top: 12px; }
   .has-sub.is-open .sub-toggle .icon { transform: rotate(180deg); }
   .nav-cta { min-height: 50px; }
   .lang summary { min-height: 50px; width: 100%; justify-content: center; }
-  .lang-menu { position: static; margin-top: 8px; box-shadow: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lang-menu { position: static; width: auto; max-height: none; margin-top: 8px; box-shadow: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .site-header .brand-text small { display: block; }
 }
 @media (max-width: 1023px) {
