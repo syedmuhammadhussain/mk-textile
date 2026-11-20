@@ -46,7 +46,7 @@ body {
 img, svg { display: block; max-width: 100%; }
 a { color: var(--teal-600); text-decoration: none; }
 a:hover { color: var(--navy); }
-h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -.025em; font-weight: 800; color: var(--navy); text-wrap: balance; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -.025em; font-weight: 800; color: var(--navy); text-wrap: balance; overflow-wrap: break-word; hyphens: auto; }
 h1 { font-size: clamp(2.1rem, 4.6vw, 3.5rem); }
 h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); }
 h3 { font-size: 1.15rem; letter-spacing: -.015em; font-weight: 700; }
@@ -310,7 +310,8 @@ a.card:hover, .card--hover:hover { transform: translateY(-4px); box-shadow: var(
 .rows span { color: var(--muted); font-size: .95rem; }
 
 .note { display: flex; gap: 16px; padding: 22px 24px; border-radius: var(--r); background: var(--teal-050); border: 1px solid #EEDFAE; }
-.note .icon { color: var(--teal-600); margin-top: 2px; }
+.note-icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid #EEDFAE; }
+.note-icon .icon { width: 22px; height: 22px; color: var(--teal-600); }
 .note h3 { font-size: 1rem; margin-bottom: 6px; }
 .note p { font-size: .95rem; color: #5A4548; }
 
@@ -468,7 +469,7 @@ a.card > .card-rate { margin-top: 12px; }
 .kc-cat { margin-bottom: 18px; font-size: 1.25rem; }
 .topic p { font-size: .9rem; }
 .note--warn { background: #FFF8E6; border-color: #F3DFA6; }
-.note--warn .icon { color: #8A6100; }
+.note--warn .note-icon .icon { color: #8A6100; }
 .note--warn p { color: #5F4A12; }
 .legal { max-width: 860px; }
 .legal > section { margin-top: 36px; }
@@ -604,3 +605,6 @@ a.card > .card-rate { margin-top: 12px; }
 .site-footer .brand-mark--on-light { display: none; }
 :root[data-shade]:not([data-shade="1"]) .site-footer .brand-mark--on-light { display: block; }
 :root[data-shade]:not([data-shade="1"]) .site-footer .brand-mark--on-dark { display: none; }
+
+/* Translated pages (e.g. German) have long words: let text blocks shrink and wrap instead of widening the page */
+.page-hero-inner > div, .hero-grid > *, .service-card-head > div, .detail-main, .detail-aside { min-width: 0; max-width: 100%; }

@@ -46,6 +46,8 @@ const ICONS = {
   globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
   book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
   clipboard: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  tag: '<path d="M12.59 2.59A2 2 0 0 0 11.17 2H4a2 2 0 0 0-2 2v7.17a2 2 0 0 0 .59 1.41l8.7 8.7a2.43 2.43 0 0 0 3.42 0l6.58-6.58a2.43 2.43 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+  bulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
 };
@@ -115,10 +117,10 @@ const langSwitch = `<details class="lang notranslate" translate="no">
       </details>`;
 const NAV = [
   ['index.html', 'Home'],
+  ['about.html', 'About Us'],
   ['inspection-services.html', 'Inspection Services'],
   ['factory-assessment.html', 'Factory Assessment'],
   ['sample-reports.html', 'Sample Reports'],
-  ['about.html', 'About Us'],
   ['knowledge-centre.html', 'Knowledge Centre'],
   ['contact.html', 'Contact Us'],
 ];
@@ -200,15 +202,15 @@ const widget = `<a class="wa-float" href="${WA_URL}" data-whatsapp aria-label="C
 
 const built = [];
 
-/* ---------- Title Case for headings, chips, buttons and link labels ----------
+/* ---------- Title Case for headings, bullet points, chips, buttons and link labels ----------
    Content is written in sentence case; every heading-like label is rendered in
    Title Case here so no page can miss it. Short connecting words stay lower case
    (except as the first word), and words with capitals already (GSM, AQL,
-   WhatsApp) are kept as written. Paragraphs, lists and FAQ questions are not touched. */
+   WhatsApp) are kept as written. Paragraphs and FAQ questions are not touched. */
 const SMALL_WORDS = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'nor', 'of', 'on', 'or', 'per', 'the', 'to', 'vs', 'via', 'with']);
 const titleText = (str, state) => str.replace(/([A-Za-zÀ-ÿ’']+(?:&rsquo;[a-z]+)?|&[a-z]+;)/g, (w, _m, offset, all) => {
   if (w.startsWith('&')) return w;
-  const before = all.slice(0, offset);
+  const before = state.tail + all.slice(0, offset); // text of earlier tags counts too ("<strong>Lot:</strong> the …")
   const first = state.first;
   state.first = false;
   const afterHyphen = /-$/.test(before);
@@ -219,12 +221,17 @@ const titleText = (str, state) => str.replace(/([A-Za-zÀ-ÿ’']+(?:&rsquo;[a-z
   return /^[a-z]/.test(w) ? w[0].toUpperCase() + w.slice(1) : w;
 });
 const titleInner = (inner) => {
-  const state = { first: true };
-  return inner.replace(/(<svg[\s\S]*?<\/svg>)|(<[^>]+>)|([^<]+)/g, (m, svg, tag, txt) => (txt ? titleText(txt, state) : m));
+  const state = { first: true, tail: '' };
+  return inner.replace(/(<svg[\s\S]*?<\/svg>)|(<[^>]+>)|([^<]+)/g, (m, svg, tag, txt) => {
+    if (!txt) return m;
+    const out = titleText(txt, state);
+    state.tail = (state.tail + txt).slice(-20);
+    return out;
+  });
 };
 const titleCaseHtml = (html) => html
   .replace(/<(h[1-3])(\s[^>]*)?>([\s\S]*?)<\/\1>/g, (m, tag, attrs = '', inner) => `<${tag}${attrs}>${titleInner(inner)}</${tag}>`)
-  .replace(/<ul class="chips">([\s\S]*?)<\/ul>/g, (m, inner) => `<ul class="chips">${inner.replace(/<li>([\s\S]*?)<\/li>/g, (x, t) => `<li>${titleInner(t)}</li>`)}</ul>`)
+  .replace(/<ul class="(chips|checks[^"]*|hero-points)">([\s\S]*?)<\/ul>/g, (m, cls, inner) => `<ul class="${cls}">${inner.replace(/<li>([\s\S]*?)<\/li>/g, (x, t) => `<li>${titleInner(t)}</li>`)}</ul>`)
   .replace(/<(a|span|button)(\s[^>]*class="[^"]*\b(?:btn|link-arrow)\b[^"]*"[^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, attrs, inner) => `<${tag}${attrs}>${titleInner(inner)}</${tag}>`);
 
 function page({ file, title, description, body, jsonld, section, noindex }) {
@@ -292,8 +299,8 @@ const block = (h2, inner, lead = '') => `<section class="reveal">
           <h2>${h2}</h2>${lead ? `\n          <p>${lead}</p>` : ''}
           ${inner}
         </section>`;
-const note = (h3, text, ic = 'info') => `<div class="note">
-            ${icon(ic)}
+const note = (h3, text, ic = 'clipboard') => `<div class="note">
+            <span class="note-icon">${icon(ic)}</span>
             <div>
               <h3>${h3}</h3>
               <p>${text}</p>
@@ -718,7 +725,7 @@ page({
         </table>
       </div>
       <div class="reveal" style="margin-top:22px">
-        ${note('How rates apply', RATE_NOTE)}
+        ${note('How rates apply', RATE_NOTE, 'tag')}
       </div>
     </div>
   </section>
@@ -807,7 +814,7 @@ servicePage({
     block('Loading checks', list(['Carton identification and quantities as agreed', 'Loading sequence', 'Handling and stacking', 'Load arrangement', 'Visible carton damage and discrepancies', 'Photographs', 'Seal details', 'Final loading record'], 'checks checks--2')),
     block('Unloading checks', list(['Container identity and seal', 'Condition before opening', 'Internal condition', 'Unloading sequence and handling', 'Wet, crushed, torn or shifted cartons', 'Quantity discrepancies where agreed', 'Visible damage', 'Photographs', 'Final unloading report'], 'checks checks--2')),
     `<section class="reveal">
-          ${note('Scope of the service', 'A container loading or unloading inspection records what was observed at the time. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.')}
+          ${note('Scope of the service', 'A container loading or unloading inspection records what was observed at the time. It does not guarantee cargo safety and does not replace the responsibilities of the carrier or shipper.', 'truck')}
         </section>`,
   ],
 });
@@ -836,7 +843,7 @@ servicePage({
             <li><h3>Private sharing</h3><p>The report is shared privately with the client.</p></li>
           </ol>`),
     `<section class="reveal">
-          ${note('Not a certification', 'A factory assessment is an independent evaluation against a scope agreed with the client. It is not a certification, and no formal certificate is issued.')}
+          ${note('Not a certification', 'A factory assessment is an independent evaluation against a scope agreed with the client. It is not a certification, and no formal certificate is issued.', 'shield')}
         </section>`,
   ],
 });
@@ -973,7 +980,7 @@ page({
         </div>
       </div>`).join('\n      ')}
       <div class="reveal" style="margin-top:36px">
-        ${note('Educational content', 'These guides are general educational material. They are not a substitute for the full text of any standard or for buyer-specific inspection criteria.')}
+        ${note('Educational content', 'These guides are general educational material. They are not a substitute for the full text of any standard or for buyer-specific inspection criteria.', 'book')}
       </div>
     </div>
   </section>
@@ -1015,7 +1022,7 @@ for (const a of ARTICLES) {
       <article class="detail-main">
         ${a.parts.map(([h, items]) => block(h, list(items, 'checks'))).join('\n        ')}
         <section class="reveal">
-          ${note('Keep in mind', a.close)}
+          ${note('Keep in mind', a.close, 'bulb')}
         </section>
       </article>
       <aside class="detail-aside">
@@ -1119,7 +1126,7 @@ page({
             <div class="field">
               <label for="f-stage">Inspection Stage <span class="opt">(if relevant)</span></label>
               <select id="f-stage" name="Inspection stage">
-                <option value="">Not applicable / not sure</option>
+                <option value="">Not Applicable / Not Sure</option>
                 ${STAGES.map(([name]) => `<option>${name}</option>`).join('')}
               </select>
             </div>
